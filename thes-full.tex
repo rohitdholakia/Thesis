@@ -15,6 +15,42 @@
 %%
 
 \documentclass[11pt]{report}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+%usepackage{times}
+\usepackage{url}
+\usepackage{hhline}
+\usepackage{latexsym}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{relsize}
+
+\usepackage{comment}
+\usepackage{epstopdf}
+\usepackage[small,compact]{titlesec}
+\usepackage[font=small,aboveskip=4pt,belowskip=0pt]{caption}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+
+\usepackage{enumitem}
+\setdescription{noitemsep,topsep=0pt}
+\captionsetup[algorithm]{labelfont=rm,labelsep=colon,font=footnotesize}\newcommand{\pemp}{\tilde{p}}
+%\newcommand{\sto}{\!\shortrightarrow\!}
+\newcommand{\sto}{\shortrightarrow}
+\newcommand{\argmax}[1]{\ensuremath{\underset{#1}{\mathrm{argmax}\;}}}
+\newcommand{\argmin}[1]{\ensuremath{\underset{#1}{\mathrm{argmin}\;}}}
+\newcommand*\mystrut[1]{\vrule width0pt height0pt depth#1\relax}
+\newcommand{\smathcal}[1]{_{\mathcal{#1}}}
+
+
+
+\usepackage{color}
+\input{files/rgb}
 %\documentclass[11pt,twoside]{report}%% for two-sided printing
 \usepackage{pdfpages} 
 \usepackage{anysize,fancyhdr,graphics}
@@ -23,6 +59,7 @@
 \usepackage{booktabs}
 \usepackage{tikz}
 \usepackage{comment}
+\usepackage{amsmath}
 \usetikzlibrary{arrows}
 
 \usepackage[titletoc]{appendix}%%Ensure word appendix appears in toc
@@ -194,11 +231,14 @@
 
 %%% main matter - chapters
 \input{files/05-introduction} 
-\input{files/06-baselines}
-\input{files/07-triangulation}
-\input{files/08-designchoices}
+\input{files/06-triangulation}
+\input{files/07-reality}
+\input{files/08-conclusion}
+%\input{files/06-baselines}
+%\input{files/07-triangulation}
+%\input{files/08-designchoices}
 %\input{files/09-europarl}
-\input{files/10-conclusion}
+%\input{files/10-conclusion}
 
 %%%  appendices, if any
 % \begin{appendices}
