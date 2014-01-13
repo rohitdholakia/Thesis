@@ -1,0 +1,190 @@
+%!TEX root=/home/ska124/Dropbox/Thesis/thes-full.tex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%     Chapter 4   
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Triangulation}
+\label{chap:triangulation}
+
+\section{What is Triangulation?}
+\label{sec:triangulation}
+
+ We classify Triangulation broadly into two categories. Using the output of a source pivot system as input to a pivot target system, tuned on two different development sets, is commonly called the \emph{cascade} approach. Besides making decoding twice as expensive, cascading also leads to propagation of translation errors from the source pivot system into the pivot target system, due to loss of context. This process generally leads to poorer translations when compared to the direct system.~\cite{Utiyama:07,Gispert:06} observed with empirical evidence that cascading did not improve the direct system. \alert{last line}
+
+ The second approach is to create a new phrase table between source and target using common phrases between source pivot and pivot target phrase tables. We will refer to this class of methods as \emph{pivot-based} methods.~\cite{Utiyama:07}  report results on using pivot-based methods for 3 europarl languages,\{\emph{de}, \emph{fr} and \emph{es}\}, using more than 560,000 sentences.~\cite{Cohn:07} were the first to show that using multiple pivot languages was better than using one pivot language as multiple pivots improved phrase coverage, thus reducing the number of Out-of-Vocubulary(OOV) words. They also propose a systematic way of interpolating the triangulated phrase table(s) with the direct source target table. They report results on the full europarl data. To simulate a low-resource setting, 10K samples with 10 to 20\% overlap were used.
+
+
+ ~\cite{Nakov:12} propose a language-independent approach to improving translation for low-resource languages, but, the approach assumes the presence of a resource-rich language that bears similarity to the low-resouce language. Similar languages share characteristics that help in creating a triangulated table. The paper illustrates the benefits for Indonesian-English using Malay and Spanish-English using Portuguese. Malay-Indonesian and Spanish-Portuguese have a high degree of overlap between them. In the latter case, Spanish is assumed to be resource-poor. In all the experiments, all the parallel data available is used, which is more than a million parallel sentences in the case of Spanish and Portuguese. In~\cite{Nakovemnlp:12}, the resource-rich language is adapted to be more like the resource-poor one. Notice that this also assumes both are very similar. Results are reported using both Malay-Indonesian and Bulgarian-Macedonian, the third language being English in both cases.
+
+ A common thread that binds the previous work using the approach of Triangulation is the usage of resource-rich languages. The fundamental reason behind the effectiveness of Triangulation is the reduction in the number of OOVs when using the pivot language(s). This can be observed in various forms. If the source and pivot language have a healthy vocabulary overlap, the SMT system between source-pivot is large, thus, improving translations. This factor also helps when the amount of parallel text between source-pivot is relatively low, e.g, Indonesian-English.  All the europarl languages are based on parlimentary proceedings and have minimal noise. Hence, the improvements using triangulation over the direct systems cannot be generalized for systems for low-resource languages.
+
+ ``Simulating'' low-resource scenarios is ineffective in various ways. Firstly, real low-resource languages are noisy, misaligned, and do not have a lot of data in the target domain. Secondly, triangulation is highly dependent on how good is the source pivot bitext. If the size of source pivot bitext is comparable to the source target, and/or is in the same domain, this increases bias in triangulation by introducting several common phrases, and, this is also not seen in a real low-resource setting.
+
+
+ Consider a source language, \emph{s}, a target language, \emph{t}, and a pivot language \emph{p}. You have a little parallel data between \emph{s} and \emph{t} and believe that triangulation will increase the quality of translations between \emph{s} and \emph{t}. What steps one would follow to get the desired result ?
+
+\begin{algorithm}
+\caption{Triangulate}
+\textbf{Input:} phrase table between \emph{s} and \emph{p}, p$_{src-pivot}$, \\
+ phrase table between \emph{p} and \emph{t}, p$_{pivot-tgt}$,  \\
+ \emph{n} for selecting top-n phrase pairs \\
+\textbf{Output:} p$_{trian}$
+\begin{algorithmic}
+\FORALL{(src, pivot) in top-\emph{n} p$_{src-pivot}$} \IF{pivot phrase in p$_{pivot-tgt}$}
+
+        \FOR{all (pivot, tgt) pairs in p$_{pivot-tgt}$}
+        \STATE{find scores for p$_{src-tgt}$}
+        \ENDFOR
+        \STATE{select top-\emph{n} src-target pair, add to p$_{trian}$}
+        \ENDIF
+        \ENDFOR
+
+
+%\ENDFOR
+\end{algorithmic}
+
+\end{algorithm}
+
+\begin{equation}
+ p_{lex}(t \mid s) = \Sigma p_{lex}(t \mid i) p_{lex}(i \mid s)
+\end{equation}
+
+\begin{equation}
+	p_{lex}(s \mid t) = \Sigma p_{lex}(s \mid i) p_{lex}(i \mid t)
+\end{equation}
+
+\begin{equation}
+	p_w(t \mid s) = \Sigma p_w(t \mid i) p_w(i \mid s)
+\end{equation}
+
+\begin{equation}
+	p_w(s \mid t) = \Sigma p_w(s \mid i) p_w(i \mid t)
+\end{equation}
+
+In~\cite{Cohn:07}, 
+
+\begin{eqnarray*}
+p(t \mid s)&=&\sum_{i}{p(t, i \mid s)}\\
+&=& \sum_{i}{p(t \mid i, s)\,p(i \mid s)}\\
+&\approx& \sum_{i}{p(t \mid i)\,p(i \mid s)}
+\end{eqnarray*}
+
+\section{Translation Model Combination}
+\label{sec:interpolation}
+
+	Combining translation models, trained on corpora from different domains, is an inherently difficult task. We want to make our translations better on the domain of the test set, while also correcting errors in our baseline translation model. In case of low-resource languages, the baseline translation model has been trained on completely out-of-domain corpora or some in-domain and a lot of out-of-domain corpora. This results in translation pairs that are missing altogether or translation pairs with so low probability that decoding misses them altogether. The aim of Interpolation is to add translation pairs that are missing and give more weightage to translations that are more valid in the given domain. 
+
+	Consider the translations from Haitian-Creole to English. We have a baseline model trained on a little in-domain parallel data (\~17K sentences). We aim to make our translations better on the same domain using a lot of out-of-domain data, which in our case is parlimentary proceedings. Its important that we do not make the baseline model translations end up at the bottom of the stack because they are in-domain. At the same time, we do not want to miss out on the valid translations introduced by the larger, clean parliamentary proceedings based translation model. 
+
+	\subsection{Example}
+		Consider a phrase pair, (jan nou, that you). Each phrase pair has a set of scores associated with it in the phrase table. They are the forward and backward lexical probabilities, and the forward and backward phrase probabilities. 
+
+		From the direct phrase table, we have the following scores for the phrase pair mentioned above. The last score, 2.718, is a constant which is the phrase penalty. 
+	\begin{verbatim}
+		jan nou  ||| that you ||| 0.000786782 2.11603e-05 0.125 0.00906772 2.718 
+	\end{verbatim}
+
+		The triangulated table also happens to have the same phrase pair with different scores. These scores have been obtained by using the equations shown above.
+	\begin{verbatim}
+		jan nou ||| that you ||| 0.00318015 7.75194e-05 0.0715829 0.00214831 2.718
+	\end{verbatim}
+
+		We know that our direct system has been trained on in-domain data, hence, it should get more weightage intuitively. A heuristic approach to this problem would choose a pair of values and see which one does best. For instance, if you choose 0.85 for the direct table and 0.15 for the triangulated table, the end result for the phrase pair would look like the following : 
+
+	\begin{verbatim}
+		jan nou ||| that you ||| 0.0011457872 2.961416503e-05 0.116987435 0.00802980849 2.718	
+	\end{verbatim}
+
+		There are several flaws with the approach outlined above. Firstly, an intuitive idea about the importance of the in-domain or out-of-domain phrase table is not enough. The direct Haitian-creole to English phrase table has been trained on only 110K parallel sentences and cannot always be right. Hence, starting with 0.9 for the direct table and 0.1 for the triangulated table is an extreme step. So is 0.5 and 0.5 because we want translations with more influence from the cleaner, larger Europarl data. Moreover, as we will discuss in the other chapters, we report results on several combinations of triangulation, based on changes in phrase scores, lexical scores and adding connectivity features. With every improvement, the importance of the triangulated table might increase or decrease. The heuristic approach will not be able to take that into account. 
+
+		We use CONDOR to perform an efficient grid search over the pairs of co-efficients based on the BLEU score of the interpolated system on the heldout set. Our intepolation method would have the following steps : 
+ 
+		\begin{itemize}
+			\item Start with a number, say, 0.85 and 0.15
+			\item Interpolate baseline and triangulated. Run MERT with the interpolated table
+			\item Get the BLEU of this set of weights on heldout set
+			\item Based on the BLEU score, Condor generates a new pair of co-efficients
+		\end{itemize}
+
+
+
+\section{Europarl}
+Europarl refers to the parallel corpora generated by translating the proceedings of European parliament into several languages. Version 7 of Europarl now has 20 languages, from French to Estonian and Finnish. Release of the Europarl corpus led to a surge in research into more and more data-driven methods to enable Statistical Machine Translation. The results were easily reproducible and the data is very clean and sentence-aligned. 
+
+Moreover, Europarl is multi-parallel. What does multi-parallel imply? Consider english as the common target language. A multi-parallel corpora between 20 European languages and English comprises sentences in 20 european languages which translate to the same english sentence. 
+
+\begin{figure}[ht]
+	\includegraphics[trim=4cm 4cm 4cm 4cm, height=0.5\textheight, clip=true]{files/Figures/eparl_multiparallel.jpg}
+	\caption{Spanish = es, French = fr, German = de}
+	\label{fig:eparl_multi}
+	\small
+	\centering
+\end{figure}
+
+
+
+\section{Low-resource simulation}
+
+\cite{Cohn:07} simulated ``low-resource'' settings by using the top 10K sentences for the source pivot, pivot target and source target systems.  
+
+\begin{figure}[ht]
+	\small
+	\centering
+	\includegraphics[trim=2cm 4cm 4cm 4cm, height=0.6\textheight]{files/Figures/Cohn.jpg} 
+	\caption{Low-resource simulation in Cohn \& Lapata, '07}
+	\label{fig:Cohn_lowresource}
+\end{figure}
+
+\begin{figure}
+	\small
+	\centering
+	\includegraphics[trim=2cm 4cm 4cm 4cm, height=0.5\textheight]{files/Figures/Our.jpg} 
+	\caption{Our low-resource simulation setting}
+	\label{fig:our_setting}
+\end{figure}
+
+
+
+\section{Experiments}
+\begin{figure}[ht]
+	\small
+	\centering
+
+	\input{files/Tables/eparl-100k.tex}
+	\label{table:eparlbaselines}
+	\caption{Europarl Baselines - 100K}
+\end{figure}
+
+ \begin{figure}[ht]
+ 	\small
+ 	\centering
+	\input{files/Tables/eparl-topn.tex} 
+	\label{table:eparltopn}
+	\caption{BLEU scores when just using the triangulated table}
+ \end{figure}
+
+
+\section{Translation Model Combination}
+
+\begin{figure}[ht]
+	\small
+	\centering
+	\input{files/Tables/eparl-inter-topn.tex}
+	\label{table:eparltopninter}
+	\caption{BLEU scores with top-20 interpolation}
+\end{figure}
+
+
+
+
+%\section{Using Bible}
+
+%\includegraphics[scale=0.4]{files/Figures/pivot.jpg}
+
+
+
+
+

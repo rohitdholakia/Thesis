@@ -1,0 +1,76 @@
+
+
+
+% Set the overall layout of the tree
+\tikzstyle{level 1}=[level distance=3.5cm, sibling distance=3.5cm]
+\tikzstyle{level 2}=[level distance=3.5cm, sibling distance=2cm]
+
+% Define styles for bags and leafs
+\tikzstyle{bag} = [text width=4em, text centered]
+\tikzstyle{end} = [circle, minimum width=3pt,fill, inner sep=0pt]
+
+% The sloped option gives rotated edge labels. Personally
+% I find sloped labels a bit difficult to read. Remove the sloped options
+% to get horizontal labels. 
+\begin{tikzpicture}[grow=right, sloped][scale=0.4]
+\node[bag] {33.6}
+	child {
+		node[bag] {33.84}
+	child {
+		node[bag] {33.92}
+			child {
+				node[bag] {33.76}
+				child {
+				node[end, label = right:
+				{33.07}] {}
+				edge from parent
+				node[above] {joint + dec*2}
+			}
+			child {
+				node[end, label = right:
+				{0}] {}
+				edge from parent
+				node[above] {vanilla pro}
+			}
+			edge from parent
+			node[above] {+loglin * 2}
+			}
+			child {
+				node[end, label = right:
+				{33.85}] {}
+				edge from parent
+				node[above] {-lex*2, +m1*2}
+			}
+		edge from parent
+		node[above] {+strength*2}
+	}
+	child {
+		node[end, label = right:
+		{\textbf{34.00}}] {}
+		edge from parent 
+		node[above] {+m1*2, -lex*2}
+	}
+    child {
+        node[bag] {33.78}        
+            child {
+                node[end, label=right:
+                    {33.65}] {}
+                edge from parent
+                node[above] {joint + dec*2}
+            }
+            child {
+            	node[end, label=right:
+            	{32.36}] {}
+            	edge from parent
+            	node[above] {vanilla pro}
+            }
+            edge from parent 
+            node[above] {+loglin*2}
+    }
+    edge from parent
+    node[above] {+top20}
+    };
+   
+        
+\end{tikzpicture}
+
