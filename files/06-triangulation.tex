@@ -32,7 +32,7 @@ Consider a source language, \emph{s}, a target language, \emph{t}, and a pivot l
 
 \end{algorithm}
 
-The algorithm for triangulation is described in algorithm~\ref{algo:vanilla_triangulation}. Having obtained new source target pairs by using the common pivot phrases in line~\ref{aline:common}, we proceed to compute the feature values for the new phrase pairs(line~\ref{aline:computation}). To minimize the noise, we only select the top-\emph{n} translations for any given source phrase(line~\ref{aline:topn}).  
+The algorithm for triangulation is described in Algorithm~\ref{algo:vanilla_triangulation}. Having obtained new source target pairs by using the common pivot phrases in line~\ref{aline:common}, we proceed to compute the feature values for the new phrase pairs(line~\ref{aline:computation}). To minimize the noise, we only select the top-\emph{n} translations for any given source phrase(line~\ref{aline:topn}). Line~\ref{aline:common} reiterates the importance of having a source pivot corpus of reasonable size. The triangulated translation model is contingent upon common pivot phrases and without a reasonably-sized source pivot corpus, we cannot fully utilize the large pivot target corpus(2M Europarl sentences in this dissertation). 
 
 Having obtained a new source target pair, how best to compute the feature values ? For source phrase src, target phrase tgt and pivot phrase pvt, we can compute the feature values like in~\cite{Utiyama:07} using the following equations : 
 
@@ -61,8 +61,31 @@ Having obtained a new source target pair, how best to compute the feature values
         \end{eqnarray*}
 
 
-\alert{keep an elaborate example here}
+%\Elzopeno$
+\newcommand{\maninexample}[1]{\emph{$\grave{a}$ $l\acute{a}$ $b\acute{a}\acute{a}r\acute{a}$ \textipa{\textltailn}$\acute{u}m\acute{a}$ $k\acute{o}s\acute{ɔ}n$}}
 
+\begin{table*}
+\begin{tabular}{p{0.3\linewidth}p{0.7\linewidth}}
+\toprule
+Source phrase & translations \\
+\toprule
+\multirow{1}{*}{\maninexample} & for the good job he has accomplished \\
+\midrule
+\multirow{8}{*}{\maninexample} & her good work \\ & 
+the good work \\
+& the good work carried out \\
+& the good work done \\
+& the good work done by \\
+& the good work he has done \\
+& the good work that \\
+& the sound work \\
+\bottomrule
+\end{tabular}
+\caption{1 translation before and 8 after triangulation for a source phrase in Maninkakan}
+\label{example:maninkakan}
+\end{table*}
+
+In Table~\ref{example:maninkakan}, we see that the source phrase \maninexample has only 1 translation before using triangulation. Note that the training corpus has the word accomplished only once. After using the target phrases in Europarl, we get 8 translations for the same phrase. We also see that ``work'' has changed to ``job'' and the possible target phrases are shorter. 
 
 
 \section{Related Work}

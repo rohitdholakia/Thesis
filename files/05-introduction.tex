@@ -32,16 +32,67 @@ Statistical Machine Translation(SMT) uses data-driven models to translate senten
 \end{algorithmic}
 \end{algorithm}
 
-Each step of Algorithm~\ref{algo:pbsmt} outlined above raises questions when faced with a low-resource language pair. Given parallel data, the goal of the alignment models is to learn which word in source language \emph{s} translates to target language \emph{t} and assign a likelihood to the pair. When faced with a little data, we place confident on translation pairs based on having seen them a few times. 
+Each step of Algorithm~\ref{algo:pbsmt} outlined above raises questions when faced with a low-resource language pair. Lets consider each step and discuss the problems that come up. Given parallel data, the goal of the alignment models~\cite{Brown:1993,Vogel:1996} is to learn which word in source language \emph{s} translates to target language \emph{t} and assign a likelihood to the pair. Facing corpus of small sizes, the models place higher likelihood on pairs seen fewer number of times. The phrase extraction step(Line~\ref{aline:scores}) looks at alignments learnt from Line~\ref{aline:alignments} in both directions and determines which phrases can translate from one language to another. At the end of this step, we have a phrase table which has rules of the following form : 
+
+\begin{table*}
+\small
+\small
+\centering
+\begin{tabular}{p{0.3\linewidth}p{0.2\linewidth}p{0.4\linewidth}}
+\toprule
+src & tgt & features \\
+\toprule
+! la situacion de haiti & concerned about the situation in haiti & 0.5 8.16237e-09 1 0.000483004 2.718 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The above rule states that the source phrase ``! la situacion de haiti , '' translate to the target phrase ``concerned about the situation in haiti ,'' with the feature values shown on the right. 
+
+\begin{table*}
+	\small
+	\small
+	%\centering
+	\begin{tabular}{p{0.3\linewidth}p{0.6\linewidth}}
+	\toprule
+	Feature &  Explanation \\
+	\toprule
+	$p_{w}(f \mid e)$ & probability of seeing phrase ``f'' given ``e'' \\
+	$p_{lex}(f \mid e)$ & lexical probability of seeing phrase ``f'' given ``e'' \\
+	$p_{w}(e \mid f)$ & probability of seeing phrase ``e'' given ``f'' \\
+	$p_{lex}(e \mid f)$ & lexical probability of seeing phrase ``e'' given ``f'' \\
+   	phrase penalty & a constant value penalizing distortion \\
+	\bottomrule
+	\end{tabular}
+	\caption{Features of the phrase pairs, where ``f'' is foreign/source \& ``e'' is target/english}
+	\label{table:features}
+\end{table*}
+
+The 5 features are mentioned in Table~\ref{table:features}. The two $p_{w}$ are the phrasal features, features that determine the likelihood of the source phrase translating to target and vice-versa. The phrasal translation likelihood is computed by using relative frequencies, as shown in equation~\eqref{eq:trans}.
+
+\begin{equation} \label{eq:trans}
+	p_{w}(f \mid e) = \frac{c(f, e)}{\mathlarger{\sum\limits_{\grave{f}}}c(\grave{f}, e)}
+\end{equation}
+
+The counts referred to in equation~\eqref{eq:trans} are obtained from the alignments. Note that the alignment models that were learnt on the smaller corpus will cause some propagation of errors in the phrasal probabilities. 
+
+ The lexical features~\cite{Koehn:03} are actually computed as shown in equation~\eqref{eq:lex} : 
+
+\begin{equation} \label{eq:lex}
+	p_{lex}(f \mid e, a) = \prod\limits_{i=1}^{n} \frac{1}{\{j | (i,j) \in a\}}
+	\mathlarger{\sum\limits_{\forall (i,j) \in a}} w(f_{i} \mid e_{j})
+\end{equation}
 
 
+The intuition behind having a pair of lexical features is to reward syntactic phrases while penalizing spurious one. As shown in equation~\eqref{eq:lex}, the lexical probability is the product of the lexical alignment probabilities of the constituent words in the phrase table. Hence, if a longer source phrase aligns to an equally long target phrase, it can be penalized if the individual words are not aligned. 
 
+Phrase-based SMT has been used with great success before in the literature. But, as described above, the approach is very data-driven and it is not clear how to negate the effectiveness of data and achieve fluent translations. 
 
-
+The approach of triangulation~\cite{Cohn:07,Utiyama:07,Nakov:12} scales the feature values we compute using the smaller corpora using a translation model learnt from a much larger and cleaner corpus. A pattern in the previous studies is that a large translation model is used to augment an already large translation model. In a scenario like that, only the rich become richer.  
 
 \section{Dissertation Outline}
 \label{sec:outline}
-
+Chapter~\ref{chapter:reality} describes the four low-resource languages we study followed by the models and results. \alert{add the chapter about Europarl}.
 
 \section{Contributions}
 \label{sec:summary}
