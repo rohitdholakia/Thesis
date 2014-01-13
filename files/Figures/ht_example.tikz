@@ -1,0 +1,43 @@
+%eske anbasad canada ap bay viza touris e viza etidyan
+\begin{tikzpicture}[node distance=1cm]
+	\matrix (english sentence) [nodes={anchor=mid}] {
+		\node {i}; &
+		\node {would}; &
+		\node {like}; &
+		\node {to}; &
+		\node {have}; &
+		\node {information}; &
+		\node {regarding}; &
+		\node {the}; &
+		\node {number}; &
+		\node {4636}; &
+		\node {.}; &
+		\node {how}; &
+		\node {do}; &
+		\node {i}; &
+		\node {use}; &
+		\node {it}; \\
+	};
+
+	\matrix (haiti sentence) [nodes={anchor=mid},column sep=1.5,below of=english sentence] {
+		\node {j'}; &
+		\node {aimerais}; &
+		\node {bien}; &
+		\node {avoir}; &
+		\node {quelques}; &
+		\node {informations}; &
+		\node {svp}; &
+		\node {,}; &
+		\node {concernant}; &
+		\node {ce}; &
+		\node {numero}; &
+		\node {4636}; &
+		\node {en}; &
+		\node {quoi}; &
+		\node {je}; &
+		\node {peux}; &
+		\node {l'}; &
+		\node {utiliser}; \\
+	};
+	\end{tikzpicture}
+	

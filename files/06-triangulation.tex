@@ -203,6 +203,8 @@ This is a more accurate description of the joint probability of the (s, t) phras
        Algorithm~\ref{algo:condor} explains the process of using CONDOR~\cite{condor-practice} to find the best interpolation co-efficient for a given direct and triangulated model. Note that the approach can be easily extended to multiple triangulated models. Line~\ref{aline:inter} interpolates the two translation models using equation~\eqref{eq:interpolation}. We re-tune the log-linear weights using MERT for the interpolated feature values and use the tuned model to find BLEU score on the heldout set. Based on the difference between the BLEU score obtained and the previous BLEU(line~\ref{aline:search}), CONDOR searches for the new co-efficient in the corresponding direction. The search will culminate when consecutive BLEU scores show a marginal difference~\ref{aline:condition}. As can be seen in the figure ~\ref{fig:condor}, we started with a value of 0.85 for the direct system from Mawu to English. This got a BLEU score of 10.21. If we had taken a heuristic approach, we would have just taken 0.50 and 0.50, and stopped. Alternatively, we might have tried 0.50, 0.60, 0.70 and 0.80~\cite{Nakov:12}, keeping in mind the different domains. But, neither strategy would have helped us reach our best BLEU score of 10.91, observed with $\lambda_{d}$ = 0.612962. If we use uniform weights for both the tables, we get BLEU scores on heldout as shown in Table~\ref{table:all_results}. In three of four cases, we would not have out-performed our baseline.
 
 
+
+\begin{comment}
 \section{Simulating low-resource}
 \label{sec:simulating}
 
@@ -231,4 +233,4 @@ Using 100K multi-parallel sentences as our corpus for the direct system, we get 
 	\caption{BLEU scores when only using the triangulated translation model}
 	\label{table:eparltopn}
  \end{table*}
-
+\end{comment}

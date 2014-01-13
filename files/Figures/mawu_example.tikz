@@ -1,0 +1,29 @@
+\begin{tikzpicture}[node distance=1cm]
+		\matrix (english sentence) [nodes={anchor=mid}] {
+			\node {people}; &
+			\node {say}; &
+			\node {that}; &
+			\node{she}; &
+			\node{performs}; &
+			\node{magic}; \\
+		};
+
+		\matrix (mawu sentence) [nodes={anchor=mid},column sep=1.5,below of=english sentence] {
+			\node {$\grave{a}$}; &
+			\node {$\grave{a}$}; &
+			\node {f\'ɔ}; &
+			\node {$\acute{a}$n}; &
+			\node {n$\grave{e}$}; &
+			\node {k$\grave{o}$}; &
+			\node {b$\acute{u}$l$\grave{am}$$\acute{a}$}; &
+			\node {m$\grave{u}$s$\grave{o}$}; &
+			\node {kw$\acute{a}$$\grave{o}$}; &
+			\node {y\'a}; &
+			\node {$w '\epsilon '\epsilon$\'o}; &
+			\node {l\'e}; &
+			\node {\'e}; &
+			\node {\`a}; &
+			\node {m\'at\'aady\`a}; \\
+		};
+	\end{tikzpicture}
+	

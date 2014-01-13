@@ -1,0 +1,34 @@
+% A simple graph with straight and bend arrows and loops
+% Stefan Kottwitz
+
+
+\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3cm,
+  thick,main node/.style={circle,fill=blue!20,draw,font=\sffamily\Large\bfseries}]
+
+  \node[main node] (1) {fr};
+  \node[main node] (2) [below left of=1] {ht};
+  \node[main node] (3) [below right of=2] {es};
+  \node[main node] (4) [below =3] {pt};
+  \node[main node] (5) [below right of=1] {en};
+  
+  
+  \end{tikzpicture}
+  \begin{comment}
+  \path[every node/.style={font=\sffamily\small}]
+    (1) edge node [left] {2M} (5)
+        %edge [bend right] node[left] {30K} (2)
+        %edge [loop above] node {0.1} (1)
+    (2) edge node [right] {30K} (1)
+        edge node [right] {30K} (3)
+        edge node [right] {30K} (4)
+        edge node {120K} (5)
+        %edge [loop left] node {0.4} (1)
+        %edge [bend right] node[left] {0.1} (3)
+        %edge [bend right] node[left] {0.1} (4)
+    (3) %edge node [right] {0.8} (2)
+        edge  node[right] {2M} (5);
+    (4) %edge node [right] {0.8} (2)
+        edge node[right] {2M} (5);
+\end{tikzpicture}
+\end{comment}
+

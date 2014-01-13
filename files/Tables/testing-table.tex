@@ -1,0 +1,42 @@
+\documentclass[letter]{article}
+\usepackage{fullpage}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usetikzlibrary{positioning,decorations.pathreplacing}
+\usepackage{multirow}
+\usepackage{array}
+\titleformat{\section}{\scshape\centering}{\thesection}{1em}{}
+\titleformat{\subsection}{\scshape\centering}{\thesubsection}{1em}{}
+
+
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+
+\begin{document}
+
+
+\begin{table}[t!]
+\caption{words of words words}
+\scriptsize
+\begin{tabular}{| C{0.9cm} | L{2.7cm} | L{2.9cm}  |}
+\hline
+\multicolumn{1}{|c|}{\textbf{xxxxxx}} & \multicolumn{1}{c|}{\textbf{Consxxxxxtruct}} & \multicolumn{1}{c|}{\textbf{xxxxxxxxxxxxxxx}} \\ 
+   \hline
+   \multirow{4}{0.7cm}{words} & words-at [location]& words words's words \\ \cline{2-3} 
+& words-to [words]&  words, words, words, words \\ \cline{2-3} 
+& words words-words [words]& words, words, or words \\ \cline{2-3} 
+& words-on [words]&  words words or words a words words \\  \cline{2-3} 
+\hline
+    \multirow{3}{0.7cm}{words (words)}& words words words & words words' words \\ \cline{2-3}        
+    & words [words-words] as [words] & words-words, words, words  \\ \cline{2-3}   
+ & words [words words] & words words shape words, words words on words \\ \cline{2-3}
+\hline
+\multirow{1}{0.7cm}{words} & words and words & words words ..words \\  
+\hline
+\end{tabular}
+\label{table:words}
+\end{table}
+
+\end{document}

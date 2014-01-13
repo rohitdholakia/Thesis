@@ -1,0 +1,39 @@
+\begin{tikzpicture}[node distance=1cm]
+	\matrix (english sentence) [nodes={anchor=mid}] {
+		\node {a}; &
+		\node {facebook}; &
+		\node {page}; &
+		\node {for}; &
+		\node {laura}; &
+		\node {and}; &
+		\node {euna}; &
+		\node {already}; &
+		\node {has}; &
+		\node {more}; &
+		\node {than}; &
+		\node {five}; &
+		\node {thousand}; &
+		\node {members}; \\
+	};
+	\matrix (malagasy sentence) [nodes={anchor=mid},column sep=1.5,below of=english sentence] {
+		\node {misy}; &
+		\node {takelaka}; &
+		\node {facebook}; &
+		\node {ho}; &
+		\node {an}; &
+		\node {`}; &
+		\node {i}; &
+		\node {laura}; &
+		\node {sy}; &
+		\node {euna}; &
+		\node {efa}; &
+		\node {manana}; &
+		\node {mpikambana}; &
+		\node {maherin}; &
+		\node {`}; &
+		\node {ny}; &
+		\node {dimy}; &
+		\node {arivo}; &
+		\node {sahady}; \\
+	};
+	\end{tikzpicture}

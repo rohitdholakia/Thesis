@@ -1,0 +1,93 @@
+\chapter{Triangulation for Real Low-Resource Languages}
+\label{chapter:reality}
+
+\section{Four real low-resource languages}
+We study the effectiveness of pivot-based triangulation for languages with insufficient resources, Mawukakan, Maninkakan, Malagasy and Haitian-Creole. Mawukakan and Maninkakan are two languages from the Mandekan family, spoken by almost 3.5 million people in West Africa. The Mandekan languages are a part of the Niger-Congo language family. Maninkakan and Mawukakan have little writing tradition, are written using multiple alphabets \footnote{data we have used has Latin script, obtained via LDC} and have very little resources for Machine Translation. Malagasy is the national language of Madagascar, spoken by 18 million people worldwide. Haitian-Creole is the national language of the Republic of Haiti and data used is from the Sixth Workshop on Machine translation, 2011~\cite{WMT:11}. It comprises short messages sent to the number 4636 after the devastating earthquake in January, 2010. Although nine systems participated in the workshop on Haitian-Creole, the approach of triangulation was not used. To our best knowledge, this is the first in-depth study of triangulation in a real low-resource setting and also the first for the four languages mentioned above. Mawukakan, Maninkakan and Malagasy do not have publicly available SMT systems. 
+
+In the aftermath of the earthquake in Haiti in January, 2010, Mission 4636 set up a service where anyone in Haiti could send a message for free to a phone number 4636\footnote{\emph{http://www.mission4636.org}}. A group of volunteers translated the messages into English and helped the relief organizations provide swift help to the affected masses.  Microsoft Research released a translation system to the public, for Haitian Creole, 5 days after the devastating earthquake~\cite{Lewis:11}. The fast turnaround time\footnote{\emph{To know the exact timeline, refer to http://languagelog.ldc.upenn.edu/nll/?p=2068}} and the usefulness of Machine Translation in the time of crisis inspired the featured task in the 6th Workshop on Statistical Machine Translation. Although Haitian Kreyol is a French-based Creole, approach of inducing a Haitian Kreyol to English phrase table by pivoting via French was not used.
+
+Malagasy is an Austronesian language and the national language of Madagascar, spoken by 18 million around the world. Although it shares several words with Ma'anyan, it has influences from Arabic, French, Swahili and Bantu. Characters can have diacritics but not always. Numbers are written right-to-left like Arabic, while some words are in common with French. It follows the Latin alphabet but with 21 characters. Finally, the dataset we have is real-world news articles translated by volunteers across the world\footnote{http://www.ark.cs.cmu.edu/global-voices/} and aligned using a sentence aligner, thus, introducting some inconsistencies. 
+
+Mawukakan\footnote{http://catalog.ldc.upenn.edu/LDC2005L01} and Maninkakan\footnote{http://catalog.ldc.upenn.edu/LDC2013L01} are two of the four languages of the Mandekan family. They have no writing tradition, are spoken by a few million people around the world and are unique in several ways. Several characters have diacritics but they can have different stress depending on the nearby words. The lengths of sentences are relatively longer when compared to English. As they have no writing tradition, there is a realistic chance they might end up as endangered languages. By using triangulation and significantly improving the output translations, we hope to preserve the existing data and encourage more monolingual and parallel data production. 
+
+\section{Datasets}
+\label{sec:datasets}
+
+\input{files/Tables/Example-each.tex}
+
+All the source sentences in Mawukakan have both French and English translations. Not all sentences in Maninkakan have both translations. The numbers for each of the datasets is mentioned in Table~\ref{table:datasettings}. The training data for Haitian Kreyol is the same as released in the Workshop. Malagasy training data also has not been changed in any manner.Both Haitian Kreyol and Malagasy have no parallel data with other languages except English. To use triangulation, we needed parallel data with atleast one more language to use as pivot. 
+
+To enable us to reach French phrases, we have used the Bible as our source pivot text for Haitian Kreyol and Malagasy. The Bible gives us 30K sentences of text that is relatively clean. To align the Bible in source languages and French, we used hunalign~\cite{Hun:05}, a sentence aligner. No manual alignment was done. As a result of using Bible, our source pivot, pivot target and source target models are all trained on disjoint and unrelated domains for Haitian Kreyol and Malagasy. For Haitian Kreyol, we aim to improve translations for short messages using the Bible to reach french phrases present in parlimentary proceedings. For Malagasy, we aim to improve poorly aligned news articles using the Bible to reach the same french phrases. As shown in our results, we improve the translations for both over the target system. 
+
+\subsection{Pre-processing}
+
+    The English and French side of Mawukakan and Maninkakan parallel data sometimes have forward slashes separating equivalent english and french translations. For both, the feminine form was chosen. For instance, a sentence
+    \begin{verbatim}
+            he/she/it goes to school
+    \end{verbatim}
+            was replaced by the english sentence \\
+    \begin{verbatim}
+            she goes to school
+    \end{verbatim}
+
+    Text between square brackets was removed. As development, heldout and test sets are not separately released, the last 2000 sentences was used for development, heldout and test together, for both Mawukakan and Maninkakan. The top 1000 was kept aside for development, while 500 each was kept aside for heldout and test. The last 2000 sentences make up 40\% of the total data for Mawukakan and 33\% of the total data for Maninkakan. We kept aside a large percentage for development and testing to get a better idea about the difference between the various models.
+
+    Both Haitian-Creole and Malagasy are tokenized using the French tokenizer that is part of the Moses toolkit while Mawukakan and Maninkakan are tokenized using the English tokenizer.
+
+\subsection{Development and evaluation data}
+	For Haitian Kreyol, the same development, heldout and test data has been used as the Workshop on Machine Translation. For Malagasy, the development data has been used as-is. As there is no separate heldout set, we have used the top 500 sentences of the test data as heldout, keeping aside the rest as unseen test data. 
+
+	We used 40\% and 33\% of total data for Mawukakan and Maninkakan respectively for development, heldout and test data. A larger proportion was kept aside to make sure evaluation can be done over a range of sentences. The distribution of the evaluation data is shown in Table~\ref{table:ddtt}. The development, heldout and test sets for Haitian Kreyol have \emph{raw} and \emph{clean} versions. The raw versions are the short messages sent as-is, while the clean versions are the same messages with some words corrected or removed, e.g caf* in raw is cafe in clean version. 
+
+
+\begin{table*}
+	\small
+	\centering
+	\input{files/Tables/datasettings.tex}
+	\caption{Comparison of the low-resource scenario with Europarl}
+	\label{table:datasettings}
+\end{table*}
+
+
+ \begin{table*}
+             \small
+             \centering
+             \input{files/Tables/devsets.tex}
+             \caption{Training, development, heldout and test sets for all 4 languages}
+             \label{table:ddtt}
+ \end{table*}
+
+
+
+\section{Baselines}
+\label{sec:baselines}
+Broadly, the training data for Haitian Kreyol can be divided into 3 parts, \emph{SMS}, \emph{Out-of-domain} and \emph{Wikipedia} with 16k, 88k and 17k parallel sentences respectively. We observe, as shown in Table~\ref{table:haiti_baselines} that only using the OOD data does not take us very far. Just using the 16.6K in-domain short messages leads to a better BLEU score than not using it. Using all of the data leads to the best baseline. The \emph{bigLM} refers to an interpolated language model comprising the English side of Haitian Kreyol workshop data and the English side of Europarl. For all the other experiments, baseline-bigLM is the baseline and the same language model has been used throughout, for Haitian Kreyol. 
+
+The baseline BLEU score for all the four languages are reported on Table~\ref{table:all_results}. Note that the baseline for Haitian-Creole outperforms the best system from the Workshop. 
+
+\begin{table*}
+	\small
+	\centering
+	\input{files/Tables/Baselines.tex}
+	\caption{Different baselines for Haitian Kreyol}
+	\label{table:haiti_baselines}
+\end{table*}
+
+
+
+
+\section{Results}
+\label{sec:results}
+
+
+\begin{table*}
+	\small
+	\centering
+	\input{files/Tables/all-results.tex}
+	\caption{Results for all languages}
+	\label{table:all_results}
+\end{table*}
+
+
+\section{Remarks}
+\label{sec:remarks}
