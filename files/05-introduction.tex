@@ -13,6 +13,31 @@
 \chapter{Introduction}
 \label{sec:introduction}
 
+\section{Why study Low-Resource?}
+\label{sec:low_resource}
+Statistical Machine Translation(SMT) uses data-driven models to translate sentences in a source language to a given target language. A phrase-based SMT system has a generic pipeline that looks as described in Algorithm~\ref{algo:pbsmt}. 
+
+\begin{algorithm}
+\small
+%\centering
+\caption{Building a phrase-based system}
+\label{algo:pbsmt}
+\textbf{Input}: Parallel corpus between \emph{s} and \emph{t} \\
+\textbf{Output}: A translation model ``tm'' 
+\begin{algorithmic}[l]
+	%\STATE{\textbf{Clean:}Pre-process both sides of the corpus} \label{aline:preprocess}
+	\STATE{\textbf{Alignments: }Learn bi-directional alignments} \label{aline:alignments}
+	\STATE{\textbf{Extraction: }Extract phrase pairs from alignments and compute likelihoods for each translation pair} \label{aline:scores}
+	\STATE{\textbf{Tuning: }Set weights for features by maximizing BLEU score on a development set using MERT} \label{aline:MERT}
+\end{algorithmic}
+\end{algorithm}
+
+Each step of Algorithm~\ref{algo:pbsmt} outlined above raises questions when faced with a low-resource language pair. Given parallel data, the goal of the alignment models is to learn which word in source language \emph{s} translates to target language \emph{t} and assign a likelihood to the pair. When faced with a little data, we place confident on translation pairs based on having seen them a few times. 
+
+
+
+
+
 
 \section{Dissertation Outline}
 \label{sec:outline}
