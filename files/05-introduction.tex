@@ -18,7 +18,7 @@
 Statistical Machine Translation(SMT) has enabled several languages like French, Spanish, Finnish and others to have publicly available translation systems which can translate from and into these languages. Google Translate has 81 languages you can translate from and to. In 2003, we had none ! 
 
 
-Having said that, more than 90\% of the World languages do not have a publicly available SMT system. Moreover, most of them have not been studied in the literature before. In Table~\ref{table:numberspeakers}, we observe that the major languages have way more number of speakers than the languages we study in this disseration. 
+Having said that, more than 90\% of the World languages do not have a publicly available SMT system. Moreover, most of them have not been studied in the SMT literature before. In Table~\ref{table:numberspeakers}, we observe that the major languages have way more number of speakers than the languages we study in this disseration. 
 \begin{table*}
 	\begin{tabular}{lr}
 	\toprule
@@ -40,10 +40,13 @@ Having said that, more than 90\% of the World languages do not have a publicly a
 	%\centering
 \end{table*}
 
-All the four languages also throw up linguistic challenges that are not seen in the major languages. For instance, Malagasy has influence from French and Arabic. While there are some loan words from French, the numbers are written right-to-left like Arabic. It also shows vocabulary overlap with Bantu. Diacritics are used but only in certain circumstances. On the other hand, Mawukakan and Maninkakan show a more frequent usage of diacritics. But the accent can be different depending on the placement of the word. Haitian Kreyol is a French-based Creole but does not share any vocabulary with Parasian French. When studying low-resource languages, every part of the standard SMT pipeline needs a rethink. How do we tokenize the text ? 
 
+All the four languages we study also throw up interesting linguistic challenges that are not always seen in the major languages. For instance, Malagasy has influence from French and Arabic. While there are some loan words from French, the numbers are written right-to-left like Arabic. It also shows vocabulary overlap with Bantu. Diacritics are used but only in certain circumstances. On the other hand, Mawukakan and Maninkakan show a more frequent usage of diacritics. But the accent can be different depending on the placement of the word. Haitian Kreyol is a French-based Creole but does not share any vocabulary with Parisian French. The influence is from 18th century French where Haiti was ruled by France. Haitian Kreyol became an official language only in 1961. Like is typical of Creoles, the language shares some characteristics (e.g word order) with French but the vocabulary has undergone change according to the local dialects. Studying low-resource languages will take us further towards the quest for a universal translator. 
 
-SMT uses data-driven models to translate sentences in a source language to a given target language. A phrase-based SMT system has a generic pipeline that looks as described in Algorithm~\ref{algo:pbsmt}. 
+\section{Pipeline}
+To the interested reader, we refer to the comprehensive and readable SMT survey~\cite{Lopez07asurvey}. Below, we discuss the pipeline for phrase-based SMT~\cite{Koehn:03} which has been used for all the experiments in the dissertation, and discuss how a low-resource language pairs raises question at each stage. 
+
+SMT uses data-driven models to translate sentences in a source language to a given target language. Given a parallel corpus between \emph{s} and \emph{t}, a phrase-based SMT system has a generic pipeline that looks as described in Algorithm~\ref{algo:pbsmt}. 
 
 \begin{algorithm}
 \small
@@ -57,17 +60,18 @@ SMT uses data-driven models to translate sentences in a source language to a giv
 	\STATE{\textbf{Alignments: }Learn bi-directional alignments} \label{aline:alignments}
 	\STATE{\textbf{Extraction: }Extract phrase pairs from alignments and compute likelihoods for each translation pair} \label{aline:scores}
 	\STATE{\textbf{Tuning: }Set weights for features by maximizing BLEU score on a development set using MERT} \label{aline:MERT}
+	\STATE{\textbf{Decoding: }Using language model and translation model, translate test sentences} \label{aline:decoding}
 \end{algorithmic}
 \end{algorithm}
 
-The reason its called phrase-based SMT is because the base unit of translation are \emph{phrases}. The phrases need not be linguistically motivated. Phrases in this context means a group of words. In this dissertation, we only use phrase-based SMT for all the experiments but there are others in the literature. 
+The reason its called phrase-based SMT is because the base unit of translation are \emph{phrases}. The phrases need not be linguistically motivated. Phrases in this context means a group of words. In this dissertation, we only use phrase-based SMT for all the experiments but there are others in the literature.  \alert{cite Galley, Chiang and anybody else if needed} 
 
 Each step of Algorithm~\ref{algo:pbsmt} outlined above raises questions when faced with a low-resource language pair. Low-resource languages are those with insufficient resources to use for Machine Translation into and/or from the language. To provide perspective, French has a corpus with $10^9$ parallel sentences with English. On the other hand, the language with the highest amount of data in this dissertation is Haitian Kreyol, with 121K sentences. Out of those 121K, only 16\% are from the target domain, the sentences are noisy and with punctuation and spelling mistakes.
 
 
-Lets consider each step and discuss the problems that come up. Given parallel data, the goal of the alignment models~\cite{Brown:1993,Vogel:1996} is to learn which word in source language \emph{s} translates to target language \emph{t} and assign a likelihood to the pair. The advanced alignment models use initial alignments from Model 1. Model 1 starts with uniform initialization and uses Expectation Maximization~\cite{Dempster:77} to converge. Facing corpus of a small size, the alignment models will end up making inferences that are not always true. They will place higher likelihood on pairs seen fewer number of times. The phrase extraction step(Line~\ref{aline:scores}) looks at alignments learnt from Line~\ref{aline:alignments} in both directions and determines which phrases can translate from one language to another using the intersection of the alignments. At the end of this step, we have a phrase table which has rules of the following form : 
+Lets consider each step and discuss the problems that come up. Given parallel data, the goal of the alignment models~\cite{Brown:1993,Vogel:1996} is to learn which word in source language \emph{s} translates to target language \emph{t} and assign a likelihood to the pair of words. The advanced alignment models use initial alignments from IBM Model 1. Model 1 starts with uniform initialization and uses Expectation Maximization~\cite{Dempster:77} to converge. Facing a corpus of a small size, the alignment models will end up making inferences that are not always true. They will place higher likelihood on pairs seen fewer number of times due to lack of more data. The phrase extraction step(Line~\ref{aline:scores}) looks at alignments learnt from Line~\ref{aline:alignments} in both directions and determines which phrases can translate from one language to another using the intersection of the alignments. At the end of this step, we have a phrase table which has rules of the following form : 
 
-\begin{table*}
+\begin{table*}[ht]
 \small
 \small
 \centering
@@ -111,7 +115,7 @@ The 5 features are mentioned in Table~\ref{table:features}. The two $p_{w}$ are 
 
 The counts referred to in equation~\eqref{eq:trans} are obtained from the alignments. Note that the alignment models that were learnt on the smaller corpus will cause some propagation of errors in the phrasal probabilities. 
 
- The lexical features~\cite{Koehn:03} are actually computed as shown in equation~\eqref{eq:lex} : 
+The lexical features~\cite{Koehn:03} are actually computed as shown in equation~\eqref{eq:lex} : 
 
 \begin{equation} \label{eq:lex}
 	p_{lex}(f \mid e, a) = \prod\limits_{i=1}^{n} \frac{1}{\{j | (i,j) \in a\}}
@@ -119,9 +123,17 @@ The counts referred to in equation~\eqref{eq:trans} are obtained from the alignm
 \end{equation}
 
 
-The intuition behind having a pair of lexical features is to reward syntactic phrases while penalizing spurious one. As shown in equation~\eqref{eq:lex}, the lexical probability is the product of the lexical alignment probabilities of the constituent words in the phrase table. Hence, if a longer source phrase aligns to an equally long target phrase, it can be penalized if the individual words are not aligned. 
+The intuition behind having a pair of lexical features is to reward syntactic phrases while penalizing spurious ones. As shown in equation~\eqref{eq:lex}, the lexical probability is the product of the lexical alignment probabilities of the constituent words in the phrase table. Hence, if a longer source phrase aligns to an equally long target phrase, it can be penalized if the individual words are not aligned. 
 
-\alert{Add stuff about decoding and BLEU scores}
+Having learnt translation pairs with their respective features, we now want to know which features are better indicators of good translations and vice-versa. For weight learning, we use Minimum Error Rate Training. Before discussing MERT, its important to know about BLEU~\cite{Papineni:02}, Bilingual Evaluation Understudy. BLEU is the error metric used most often when comparing output translations with reference translations. \alert{discuss BLEU for one or two sentences}
+
+Minimum Error Rate Training chooses weights for features that minimize BLEU score loss given a ``tuning'' set. A ``tuning'' set is a set of parallel sentences between source and target that is in the same domain as the test and of the same type. For instance, when trying to improve translations for Haitian Kreyol short messages, we have tuning and test in the same domain, SMS. Although our training is 85:15 mix of OOD:SMS. Essentially, MERT takes translation pairs generated from a mixture of domains corpus and tunes the weights such that the translations are more like that target domain. As our training rules have been extracted from a smaller corpora that has not been manually sentence-aligned, MERT is learning weights for features that have values which are not always true. This is why we re-tune our weights for the interpolated model after obtaining a translated table with scaled values from the much larger fr-en table. 
+
+Having obtained the weights and a language model on the target side, decoding refers to the process of finding the best translation for the source sentence as shown in equation~\eqref{eq:decoding}. 
+
+\begin{equation} \label{eq:decoding}
+	e_{best} = argmax_{e} \mathlarger{\prod\limits_{i=1}^I} \phi(\hat{f}_{i} | \hat{e}_{i})p_{LM}(e)d(start_{i} - end_{i-1}-1)
+\end{equation}
 
 Phrase-based SMT has been used with great success before in the literature. But, as described above, the approach is very data-driven and it is not clear how to achieve fluent translations with only a little parallel data. 
 

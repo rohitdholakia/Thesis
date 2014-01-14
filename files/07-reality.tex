@@ -58,6 +58,45 @@ To enable us to reach French phrases, we have used the Bible as our source pivot
 	\label{table:datasettings}
 \end{table*}
 
+\begin{table*}
+	\small
+	\centering
+	\begin{tabular}{lrrr}
+	\toprule
+	Language & \#baseline-rules & \#triangulated-rules \\
+	\toprule
+	Mawukakan & 51066 & 1.3M \\
+	Maninkakan & 60097 & 0.8M \\
+	Haitian Kreyol & 4.8M & 13.6M \\
+	Malagasy & 5.5M & 7.1M \\
+	\bottomrule
+	\end{tabular}
+	\caption{Number of phrase pairs before and after triangulation}
+	\label{table:mul_rules}
+\end{table*}
+
+\begin{table*}
+	\small
+	\centering
+	\begin{tabular}{lrr}
+	\toprule
+	System & common pivot & \#rules \\
+	\toprule
+	mawu-fr-en & 8128 & 1.3M \\
+	manin-fr-en & 6289 & 0.8M \\
+	ht-fr-en & 116184 & 13.6M \\
+	mlg-fr-en & 99247 & 7.1M \\
+	\midrule
+	de-fr-en & 1.3M & 28.7M \\
+	fr-es-en & 1.3M & 13.7M \\
+	es-fr-en & 1.3M & 12.95M \\
+	\bottomrule
+	\end{tabular}
+	\caption{Comparison of triangulation sizes for Europarl(50K src pivot and 2M pivot tgt) and four languages we study}
+	\label{table:triangulation_numbers}
+\end{table*}
+
+	In Table~\ref{table:triangulation_numbers}, we observe that even with a constrained source pivot in Europarl, where we only use the top 50K sentences as source pivot, the triangulated table still finds 1.3M rules common, which is much larger than we observe for the four languages shown. Having perfectly sentence aligned data which is also multi-parallel goes a long way in expanding the triangulated phrase table. 
 
 \begin{table*}
          \small
