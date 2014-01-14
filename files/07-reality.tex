@@ -2,9 +2,19 @@
 \label{chapter:reality}
 
 \section{Four real low-resource languages}
-We study the effectiveness of pivot-based triangulation for languages with insufficient resources, Mawukakan, Maninkakan, Malagasy and Haitian-Creole. Mawukakan and Maninkakan are two languages from the Mandekan family, spoken by almost 3.5 million people in West Africa. The Mandekan languages are a part of the Niger-Congo language family. Maninkakan and Mawukakan have little writing tradition, are written using multiple alphabets \footnote{data we have used has Latin script, obtained via LDC} and have very little resources for Machine Translation. Malagasy is the national language of Madagascar, spoken by 18 million people worldwide. Haitian-Creole is the national language of the Republic of Haiti and data used is from the Sixth Workshop on Machine translation, 2011~\cite{WMT:11}. It comprises short messages sent to the number 4636 after the devastating earthquake in January, 2010. Although nine systems participated in the workshop on Haitian-Creole, the approach of triangulation was not used. To our best knowledge, this is the first in-depth study of triangulation in a real low-resource setting and also the first for the four languages mentioned above. Mawukakan, Maninkakan and Malagasy do not have publicly available SMT systems. 
 
-In the aftermath of the earthquake in Haiti in January, 2010, Mission 4636 set up a service where anyone in Haiti could send a message for free to a phone number 4636\footnote{\emph{http://www.mission4636.org}}. A group of volunteers translated the messages into English and helped the relief organizations provide swift help to the affected masses.  Microsoft Research released a translation system to the public, for Haitian Creole, 5 days after the devastating earthquake~\cite{Lewis:11}. The fast turnaround time\footnote{\emph{To know the exact timeline, refer to http://languagelog.ldc.upenn.edu/nll/?p=2068}} and the usefulness of Machine Translation in the time of crisis inspired the featured task in the 6th Workshop on Statistical Machine Translation. Although Haitian Kreyol is a French-based Creole, approach of inducing a Haitian Kreyol to English phrase table by pivoting via French was not used.
+Faced with a low-resource language pair, several questions arise when combining a direct translation model with a triangulation model:
+\begin{itemize}\addtolength{\itemsep}{-0.4\baselineskip}
+        \item How large should the triangulated table be?
+        \item What is the best way to compute feature values in the triangulated phrase table?
+        \item When combining with the direct system, do we use linear interpolation or alternative decoding paths?
+        \item Is the approach of cascading a viable option?
+        \item How does one penalize triangulated phrase pairs with insufficient alignment between the words in the phrase pairs?
+\end{itemize}
+
+To answer some of the above questions, we study the effectiveness of pivot-based triangulation for languages with insufficient resources, Mawukakan, Maninkakan, Malagasy and Haitian-Creole. Mawukakan and Maninkakan are two languages from the Mandekan family, spoken by almost 3.5 million people in West Africa. The Mandekan languages are a part of the Niger-Congo language family. Maninkakan and Mawukakan have little writing tradition, are written using multiple alphabets \footnote{data we have used has Latin script, obtained via LDC} and have very little resources for Machine Translation. Malagasy is the national language of Madagascar, spoken by 18 million people worldwide. Haitian-Creole is the national language of the Republic of Haiti and data used is from the Sixth Workshop on Machine translation, 2011~\cite{WMT:11}. It comprises short messages sent to the number 4636 after the devastating earthquake in January, 2010. Although nine systems participated in the workshop on Haitian-Creole, the approach of triangulation was not used. To our best knowledge, this is the first in-depth study of triangulation in a real low-resource setting and also the first for the four languages mentioned above. Mawukakan, Maninkakan and Malagasy do not have publicly available SMT systems. 
+
+In the aftermath of the earthquake in Haiti in January, 2010, Mission 4636 set up a service where anyone in Haiti could send a message for free to a phone number 4636\footnote{\emph{http://www.mission4636.org}}. A group of volunteers translated the messages into English and helped the relief organizations provide swift help to the affected masses. Microsoft Research released a translation system to the public, for Haitian Creole, 5 days after the devastating earthquake~\cite{Lewis:11}. The fast turnaround time\footnote{\emph{To know the exact timeline, refer to http://languagelog.ldc.upenn.edu/nll/?p=2068}} and the usefulness of Machine Translation in the time of crisis inspired the featured task in the 6th Workshop on Statistical Machine Translation. Although Haitian Kreyol is a French-based Creole, approach of inducing a Haitian Kreyol to English phrase table by pivoting via French was not used.
 
 Malagasy is an Austronesian language and the national language of Madagascar, spoken by 18 million around the world. Although it shares several words with Ma'anyan, it has influences from Arabic, French, Swahili and Bantu. Characters can have diacritics but not always. Numbers are written right-to-left like Arabic, while some words are in common with French. It follows the Latin alphabet but with 21 characters. Finally, the dataset we have is real-world news articles translated by volunteers across the world\footnote{http://www.ark.cs.cmu.edu/global-voices/} and aligned using a sentence aligner, thus, introducting some inconsistencies. 
 
@@ -49,13 +59,13 @@ To enable us to reach French phrases, we have used the Bible as our source pivot
 \end{table*}
 
 
- \begin{table*}
-             \small
-             \centering
-             \input{files/Tables/devsets.tex}
-             \caption{Training, development, heldout and test sets for all 4 languages}
-             \label{table:ddtt}
- \end{table*}
+\begin{table*}
+         \small
+         \centering
+         \input{files/Tables/devsets.tex}
+         \caption{Training, development, heldout and test sets for all 4 languages}
+         \label{table:ddtt}
+\end{table*}
 
 
 
@@ -78,6 +88,26 @@ The baseline BLEU score for all the four languages are reported on Table~\ref{ta
 
 \section{Results}
 \label{sec:results}
+ The triangulated translation model alone does not achieve a comparable performance to the baseline, owing to the out-of-domain nature of the data. In our experiments, we find that Malagasy and Haitian-Creole show a linear decrease in BLEU score on the heldout set as \emph{n} is increased. Only using the triangulated translation model leads to a 14 BLEU point drop in case of Haitian-Creole, while giving a 8 point drop in case of Malagasy. Mawukakan and Maninkakan also get lower BLEU scores by only using the triangulated system. But, the optimum value of n = 100 for Mawukakan and Maninkakan. We compare the BLEU score of n = 100 and n = 1000 and saw no difference. Observing the BLEU score loss by only using the triangulated model reitaretes the importance of the direct system.  %For all the results in table~\ref{table:all_results}, the translations models are interpolated with n = 20 for Haitian-Creole and Malagasy and n = 100 for Mawukakan and Maninkakan. 
+\begin{figure}[t]
+                \small
+                \centering
+                \includegraphics[scale=0.5]{files/Figures/multiplication_factors.eps}
+                \caption{Linear increase in size of triangulated table as n goes from 20 to 100}
+                \label{fig:multiplication_factors}
+
+\end{figure}
+
+
+Despite using a disjoint and out-of-domain Bible as source pivot and Europarl as pivot target, both Haitian-Creole and Malagasy lead to a better BLEU score on using an interpolated model comprising the direct and a top-20 triangulated model. As indicated in the example in section~\ref{sec:interpolation}, words that were mistranslated earlier get the right translations after pivoting via a large and clean fr-en phrase table.
+
+For both Mawukakan and Maninkakan, the BLEU scores show a more significant increase of 2.2 and 1.5 BLEU points respectively for the top-n interpolation model. As the training and source pivot corpora for both comprises commonly spoken sentences that are not very long, the english side of Europarl effectively augments the limited target side of the training corpus, thus, leading to better translations after interpolation.
+
+Intuitively, the two connectivity features should penalize the spurious and less aligned phrases, thus, reducing the noise and rewarding the just translations. But, the effect is not observed in the BLEU scores. Except in the case of Haitian-Creole where it improves by a small margin, adding the two connectivity features reduces the BLEU score. This could be owing to the fact that the source pivot data is tiny and the intersection of the alignments with the clean europarl alignments is leading to feature values that do not effectively discriminate between the good and bad. For instance, in Mawukakan and Maninkakan, 60\% and 66\% phrase pairs have a source connectivity strength of more than 0.5 while 67\% and 69\% have more than 0.5 in the backward direction. With feature values that show a more skewed distribution, the connectivity features are not helping distinguish good from bad.~\cite{Ahmed:13} found the two features useful translating Persian to Arabic via English, thus, going from a morphologically complex language to another complex language via a simpler language in the form of English.
+
+Although Model 1 helps in the case of Malagasy and Haitian-Creole, they do not help in the other two languages. Apart from the fact that the source pivot data for both is much smaller than the Bible, the morphology of the language could have also played a role. The diacritics in Mawukakan and Maninkakan are not always used with the same stress. Sometimes, $a$ is $\acute{a}$ while sometimes it is $\grave{a}$. With Model 1's uniform initilization on a triangulated table with fewer source phrases because of the limited data, Model 1 does not always help us get better lexical scores for a given pair than the multiplied ones.
+
+Adding the Joint and decomposed conditionals as features does well for Mawukakan and Maninkakan, leading to the best system for both. For Haitian-Creole, we replicated~\cite{Cohn:07} setting of using uniform weights for the joint probability and decomposing to find the conditions, but adding the values to the log-linear pipeline outperforms uniform interpolation of joint probabilities.
 
 
 \begin{table*}
@@ -89,5 +119,25 @@ The baseline BLEU score for all the four languages are reported on Table~\ref{ta
 \end{table*}
 
 
+
+     \begin{figure}
+                \small
+                \centering
+                \includegraphics[width=0.45\textwidth]{files/Figures/condor_run.eps}
+                \caption{Grid search over interpolation co-effs leading to a best BLEU of 10.91 using $\lambda_{d}$ = 0.612962}
+                \label{fig:condor}
+     \end{figure}
+\begin{comment}
+     \begin{figure}[ht]
+     	\begin{subfigure}[b]
+     		\includegraphics[scale=0.4]{files/Figures/condor_run.eps}
+     	\end{subfigure} \quad
+     	\begin{subfigure}[b]
+     		\includegraphics[scale=0.4]{files/Figures/mawut100.eps}
+     	\end{subfigure} \quad
+     	\small
+     	\centering
+     \end{figure}
+\end{comment}
 \section{Remarks}
 \label{sec:remarks}

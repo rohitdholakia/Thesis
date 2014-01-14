@@ -32,7 +32,12 @@ Statistical Machine Translation(SMT) uses data-driven models to translate senten
 \end{algorithmic}
 \end{algorithm}
 
-Each step of Algorithm~\ref{algo:pbsmt} outlined above raises questions when faced with a low-resource language pair. Lets consider each step and discuss the problems that come up. Given parallel data, the goal of the alignment models~\cite{Brown:1993,Vogel:1996} is to learn which word in source language \emph{s} translates to target language \emph{t} and assign a likelihood to the pair. Facing corpus of small sizes, the models place higher likelihood on pairs seen fewer number of times. The phrase extraction step(Line~\ref{aline:scores}) looks at alignments learnt from Line~\ref{aline:alignments} in both directions and determines which phrases can translate from one language to another. At the end of this step, we have a phrase table which has rules of the following form : 
+The reason its called phrase-based SMT is because the base unit of translation are \emph{phrases}. The phrases need not be linguistically motivated. Phrases in this context means a group of words. In this dissertation, we only use phrase-based SMT for all the experiments but there are others in the literature. 
+
+Each step of Algorithm~\ref{algo:pbsmt} outlined above raises questions when faced with a low-resource language pair. Low-resource languages are those with insufficient resources to use for Machine Translation into and/or from the language. To provide perspective, French has a corpus with $10^9$ parallel sentences with English. On the other hand, the language with the highest amount of data in this dissertation is Haitian Kreyol, with 121K sentences. Out of those 121K, only 16\% are from the target domain, the sentences are noisy and with punctuation and spelling mistakes.
+
+
+Lets consider each step and discuss the problems that come up. Given parallel data, the goal of the alignment models~\cite{Brown:1993,Vogel:1996} is to learn which word in source language \emph{s} translates to target language \emph{t} and assign a likelihood to the pair. The advanced alignment models use initial alignments from Model 1. Model 1 starts with uniform initialization and uses Expectation Maximization~\cite{Dempster:77} to converge. Facing corpus of a small size, the alignment models will end up making inferences that are not always true. They will place higher likelihood on pairs seen fewer number of times. The phrase extraction step(Line~\ref{aline:scores}) looks at alignments learnt from Line~\ref{aline:alignments} in both directions and determines which phrases can translate from one language to another using the intersection of the alignments. At the end of this step, we have a phrase table which has rules of the following form : 
 
 \begin{table*}
 \small
@@ -86,9 +91,13 @@ The counts referred to in equation~\eqref{eq:trans} are obtained from the alignm
 
 The intuition behind having a pair of lexical features is to reward syntactic phrases while penalizing spurious one. As shown in equation~\eqref{eq:lex}, the lexical probability is the product of the lexical alignment probabilities of the constituent words in the phrase table. Hence, if a longer source phrase aligns to an equally long target phrase, it can be penalized if the individual words are not aligned. 
 
-Phrase-based SMT has been used with great success before in the literature. But, as described above, the approach is very data-driven and it is not clear how to negate the effectiveness of data and achieve fluent translations. 
+\alert{Add stuff about decoding and BLEU scores}
 
-The approach of triangulation~\cite{Cohn:07,Utiyama:07,Nakov:12} scales the feature values we compute using the smaller corpora using a translation model learnt from a much larger and cleaner corpus. A pattern in the previous studies is that a large translation model is used to augment an already large translation model. In a scenario like that, only the rich become richer.  
+Phrase-based SMT has been used with great success before in the literature. But, as described above, the approach is very data-driven and it is not clear how to achieve fluent translations with only a little parallel data. 
+
+
+The approach of triangulation~\cite{Cohn:07,Utiyama:07,Nakov:12} aims to add translations for new source phrases while also improving translations for existing source phrases. New source phrases can be added if one has a rich source pivot corpora that leads to a new target phrase in the pivot target corpus. In a low resource scenario, its important to achieve both aims with triangulation. Owing to less training data, the direct system has several out-of-vocabulary(OOV) words. We aim to reduce the number by using triangulation. But, in case of Haitian Kreyol and Malagasy, where our source pivot corpus is completely disjoint and out-of-domain with the direct and pivot target system, we also aim to improve the translations of existing phrases. As we will show in section ~\ref{sec:results}, we do improve translations for both.  
+
 
 \section{Dissertation Outline}
 \label{sec:outline}

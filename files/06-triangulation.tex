@@ -32,25 +32,39 @@ Consider a source language, \emph{s}, a target language, \emph{t}, and a pivot l
 
 \end{algorithm}
 
-The algorithm for triangulation is described in Algorithm~\ref{algo:vanilla_triangulation}. Having obtained new source target pairs by using the common pivot phrases in line~\ref{aline:common}, we proceed to compute the feature values for the new phrase pairs(line~\ref{aline:computation}). To minimize the noise, we only select the top-\emph{n} translations for any given source phrase(line~\ref{aline:topn}). Line~\ref{aline:common} reiterates the importance of having a source pivot corpus of reasonable size. The triangulated translation model is contingent upon common pivot phrases and without a reasonably-sized source pivot corpus, we cannot fully utilize the large pivot target corpus(2M Europarl sentences in this dissertation). 
+The algorithm for triangulation is described in Algorithm~\ref{algo:vanilla_triangulation}. Having obtained new source target pairs by using the common pivot phrases in line~\ref{aline:common}, we proceed to compute the feature values for the new phrase pairs(line~\ref{aline:computation}). To minimize the noise, we only select the top-\emph{n} translations for any given source phrase(line~\ref{aline:topn}). Line~\ref{aline:common} reiterates the importance of having a source pivot corpus of reasonable size. The triangulated translation model is contingent upon common pivot phrases and without a reasonably-sized source pivot corpus, we cannot fully utilize the large pivot target corpus(2M Europarl sentences in this dissertation). Having generated a triangulated translation model, one can combine it with the existing baseline model in several ways(~\cite{Bertoldi:08, Nakov:12, Cohn:07}). 
+
+Facing a new low resource language pair, several questions arise when trying to use triangulation. 
+
+\begin{itemize}\addtolength{\itemsep}{-0.4\baselineskip}
+        \item How large should the triangulated table be?
+        \item What is the best way to compute feature values in the triangulated phrase table?
+        \item When combining with the direct system, do we use linear interpolation or alternative decoding paths?
+        \item Is the approach of cascading a viable option?
+        \item How does one penalize triangulated phrase pairs with insufficient alignment between the words in the phrase pairs?
+\end{itemize}
+
+
+All the papers that use triangulation in machine translation cite either \cite{Utiyama:07} or \cite{Cohn:07}, both published in 2007 (and sometimes cite both of them but use either one model or the other). However, these two papers introduce triangulation for phrase-based SMT in very different ways and their models are different from each other. To our knowledge, before this paper there has been no in-depth study of the different choices in building an SMT system using triangulation. Another limitation of the original work in triangulation~\cite{Utiyama:07,Cohn:07} is the unrealistic use of languages with abundant parallel data to simulate low-resource languages. Subsequent work~\cite{Nakov:12,Nakovemnlp:12,Gispert:06,Huck:12} has also assumed that parallel data in pivot languages can be found in the same domain as the original resource-poor language pair. This kind of domain similarity is not easy to find for realistic low-resource settings. In this paper, we consider and answer these design issues for real-world low-resource language pairs, building an effective machine translation for some of these languages for the first time. In constrast, in this dissertation, we improve translation quality by using triangulation through careful consideration of the triangulation design options listed above. Furthermore, in all four languages since the low-resource language pair and pivot language pair data typically come from very different domains, we use insights from domain adaptation to fine-tune the weighted mixture of direct and pivot based phrase pairs to significantly improve translation quality. 
+
 
 Having obtained a new source target pair, how best to compute the feature values ? For source phrase src, target phrase tgt and pivot phrase pvt, we can compute the feature values like in~\cite{Utiyama:07} using the following equations : 
 
- 		\begin{equation*}
+ 		\begin{equation} \label{eq:first}
                  p_{lex}(tgt \mid src) = \sum_{pvt} p_{lex}(tgt \mid pvt) p_{lex}(pvt \mid src)
-        \end{equation*}
+        \end{equation}
 
-        \begin{equation*}
+        \begin{equation}
         	p_{lex}(src \mid tgt) = \sum_{pvt} p_{lex}(src \mid pvt) p_{lex}(pvt \mid tgt)
-        \end{equation*}
+        \end{equation}
 
-         \begin{equation*}
+         \begin{equation}
         	p_w(tgt \mid src) = \sum_{pvt} p_w(tgt \mid pvt) p_w(pvt \mid src)
-        \end{equation*}
+        \end{equation}
 
-        \begin{equation*}
+        \begin{equation} \label{eq:last}
         	p_w(src \mid tgt) = \sum_{pvt} p_w(src \mid pvt) p_w(pvt \mid tgt)
-        \end{equation*}
+        \end{equation}
 
         For all the feature values, we multiply the corresponding values for source pivot and pivot target entries and marginalize over the pivot phrase. Note that we are making an independence assumption shown in equation below. 
 
@@ -60,8 +74,10 @@ Having obtained a new source target pair, how best to compute the feature values
                 &\approx& \sum_{pvt}{p(tgt \mid pvt)\,p(pvt \mid src)}
         \end{eqnarray*}
 
+        Multiplying all the features on the source pivot and pivot target is an obvious first way to obtain feature values for the triangulated table. Most previous papers follow the same route for initial scores. As we will see later, using the joint probability and changing the lexical scores leads to consistent improvements. 
 
-%\Elzopeno$
+
+
 \newcommand{\maninexample}[1]{\emph{$\grave{a}$ $l\acute{a}$ $b\acute{a}\acute{a}r\acute{a}$ \textipa{\textltailn}$\acute{u}m\acute{a}$ $k\acute{o}s\acute{ɔ}n$}}
 
 \begin{table*}
@@ -96,11 +112,10 @@ In Table~\ref{example:maninkakan}, we see that the source phrase \maninexample h
  
  A common thread that binds the previous work using the approach of Triangulation is the usage of resource-rich languages. The fundamental reason behind the effectiveness of Triangulation is the reduction in the number of OOVs when using the pivot language(s). This can be observed in various forms. If the source and pivot language have a healthy vocabulary overlap, the SMT system between source-pivot is large, thus, improving translations. This factor also helps when the amount of parallel text between source-pivot is relatively low, e.g, Indonesian-English.  All the europarl languages are based on parlimentary proceedings and have minimal noise. Hence, the improvements using triangulation over the direct systems cannot be generalized for systems for low-resource languages. All the papers that use triangulation in machine translation cite either~\cite{Utiyama:07} or~\cite{Cohn:07}, both published in 2007 (and sometimes cite both of them but use either one model or the other). However, these two papers introduce triangulation for phrase-based SMT in very different ways and their models are different from each other. ``Simulating'' low-resource scenarios is ineffective in various ways. Firstly, real low-resource languages are noisy, not perfectly sentence aligned, and do not have a lot of data in the target domain. Secondly, triangulation is highly dependent on how good is the source pivot bitext. If the size of source pivot bitext is comparable to the source target, and/or is in the same domain, this increases bias in triangulation by introducting several common phrases, and, this is also not seen in a real low-resource setting.
 
- \alert{Add stuff about domain adaptation and all that}
+ \alert{cite Hal} proposed domain adaptation by straight-forward duplication of features.~\cite{Bertoldi:08} suggested using alternative decoding paths when having different translation models. In our experiments, we found that alternative decoding paths did not work so well. This could be partly be because there are not that many alternatives when having two translation models of very different sizes and from different domains. When we do have alternative paths, they may not always be useful. Making trade-offs is a constant theme especially when facing low-resource languages. We want to maximize the good influence from the out-of-domain parlimentary proceedings but we do not want to undervalue translations that we get right already.~\cite{Cohn:07} propose uniform linear interpolation and log-linear interpolation. Before interpolating, they compute the joint probability of phrase pairs and use the resulting conditionals in place of the scores computed above in equations ~\eqref{eq:first} to ~\eqref{eq:last}.
 
 
-
- To our knowledge, before this dissertation, there has been no in-depth study of the different choices in building an SMT system using triangulation. Another limitation of the original work in triangulation~\cite{Utiyama:07,Cohn:07} is the unrealistic use of languages with abundant parallel data to simulate low-resource languages. Subsequent work~\cite{Nakov:12,Nakovemnlp:12,Gispert:06,Huck:12} has also assumed that parallel data in pivot languages can be found in the same domain as the original resource-poor language pair. This kind of domain similarity is not easy to find for realistic low-resource settings.
+ To our knowledge, before this dissertation, there has been no in-depth study of the different choices in building an SMT system using triangulation. Cascading and pivot-based triangulation have been compared~\cite{Utiyama:07,Gispert:06}, and a hybrid method has also been proposed~\cite{Wu:09} but results on using just pivot-based triangulation with real low-resource languages and comparing the different choices one needs to make has not been studied before. 
 
  \section{Europarl}
  \label{sec:europarl}
@@ -184,7 +199,18 @@ Another way of calculating the triangulated phrase scores $p_{tr}(e \mid f)$ and
         \end{eqnarray*}
 
 
-This is a more accurate description of the joint probability of the (s, t) phrase pair in the triangulated table because we are using source pivot and pivot target counts, both of which have been extracted from the alignments. As we have the counts for the direct system, computing the joint and the conditional distributions is relatively straight-forward. When interpolating the triangulated and direct translation models~\eqref{eq:interpolation}, the three new features are added to the log-linear pipeline. Owing to the smaller size of the source pivot corpora, we observed it was better to add the three new features to the log-linear pipeline and let MERT decide which features lead to a better BLEU score. This is in contrast to~\cite{Cohn:07} where they combine the joint probability of the phrase pair from direct and triangulated uniformly, and use the resulting conditionals as part of the log-linear pipeline.
+
+This is a more accurate description of the joint probability of the (s, t) phrase pair in the triangulated table because we are using source pivot and pivot target counts, both of which have been extracted from the alignments.
+
+We compute $p_{sp}(s, i)$ using equation~\eqref{eq:joint} 
+
+\begin{equation} \label{eq:joint}
+	p_{sp}(s, i) = p_{sp}(s \mid i) p_{sp}(i)
+\end{equation}
+
+	where, 
+
+ As we have the counts for the direct system, computing the joint and the conditional distributions is relatively straight-forward. When interpolating the triangulated and direct translation models~\eqref{eq:interpolation}, the three new features are added to the log-linear pipeline. Owing to the smaller size of the source pivot corpora, we observed it was better to add the three new features to the log-linear pipeline and let MERT decide which features lead to a better BLEU score. This is in contrast to~\cite{Cohn:07} where they combine the joint probability of the phrase pair from direct and triangulated uniformly, and use the resulting conditionals as part of the log-linear pipeline.
 
 
 \section{Translation Model Combination}
