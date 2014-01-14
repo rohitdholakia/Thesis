@@ -15,7 +15,35 @@
 
 \section{Why study Low-Resource?}
 \label{sec:low_resource}
-Statistical Machine Translation(SMT) uses data-driven models to translate sentences in a source language to a given target language. A phrase-based SMT system has a generic pipeline that looks as described in Algorithm~\ref{algo:pbsmt}. 
+Statistical Machine Translation(SMT) has enabled several languages like French, Spanish, Finnish and others to have publicly available translation systems which can translate from and into these languages. Google Translate has 81 languages you can translate from and to. In 2003, we had none ! 
+
+
+Having said that, more than 90\% of the World languages do not have a publicly available SMT system. Moreover, most of them have not been studied in the literature before. In Table~\ref{table:numberspeakers}, we observe that the major languages have way more number of speakers than the languages we study in this disseration. 
+\begin{table*}
+	\begin{tabular}{lr}
+	\toprule
+	Language & \#speakers \\
+	\toprule
+	French & 120M \\
+	Spanish & 466M \\
+	Mandarin Chinese & 1026M \\
+	\midrule
+	Haitian Kreyol & 12M \\
+	Malagasy & 18M \\
+	Mawu & 2M \\
+	Manin & 2M \\
+	\bottomrule
+	\end{tabular}
+	\caption{Number of speakers for Major and low-resource languages}
+	\label{table:numberspeakers}
+	%\small
+	%\centering
+\end{table*}
+
+All the four languages also throw up linguistic challenges that are not seen in the major languages. For instance, Malagasy has influence from French and Arabic. While there are some loan words from French, the numbers are written right-to-left like Arabic. It also shows vocabulary overlap with Bantu. Diacritics are used but only in certain circumstances. On the other hand, Mawukakan and Maninkakan show a more frequent usage of diacritics. But the accent can be different depending on the placement of the word. Haitian Kreyol is a French-based Creole but does not share any vocabulary with Parasian French. When studying low-resource languages, every part of the standard SMT pipeline needs a rethink. How do we tokenize the text ? 
+
+
+SMT uses data-driven models to translate sentences in a source language to a given target language. A phrase-based SMT system has a generic pipeline that looks as described in Algorithm~\ref{algo:pbsmt}. 
 
 \begin{algorithm}
 \small
@@ -50,9 +78,11 @@ src & tgt & features \\
 ! la situacion de haiti & concerned about the situation in haiti & 0.5 8.16237e-09 1 0.000483004 2.718 \\
 \bottomrule
 \end{tabular}
+\caption{Example of a phrase pair in the Haitian Kreyol to English table}
+\label{table:example_rule}
 \end{table*}
 
-The above rule states that the source phrase ``! la situacion de haiti , '' translate to the target phrase ``concerned about the situation in haiti ,'' with the feature values shown on the right. 
+The table~\ref{table:example_rule}  says that the source phrase ``! la situacion de haiti , '' translate to the target phrase ``concerned about the situation in haiti ,'' with the feature values shown on the right. 
 
 \begin{table*}
 	\small
