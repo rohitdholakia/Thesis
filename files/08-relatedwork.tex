@@ -1,5 +1,5 @@
 \chapter{Related Work}
-
+\label{chap:related_work}
 \section{Triangulation}
 Consider a source language \emph{s}, pivot language \emph{p} and target language \emph{t}. When using the \emph{cascading} approach, we build two systems, between \emph{s} and \emph{p} and between \emph{p} and \emph{t}. Given a test set in \emph{s}, it is first translated to \emph{p} and those output translations are then translated into the target language \emph{t}, making decoding twice as expensive as well. We do not report our results on using cascading for various reasons. Firstly, translating the output of a source pivot system trained and tuned on little data will lead to propogation of errors. Secondly, we will need three development sets, one for each system. Finding standard development sets for low-resource languages is unlikely. Finally, it has been shown before that cascading does not give the most fluent translations.~\cite{Utiyama:07} compared pivot-based triangulation with cascading using all of multi-parallel europarl, observing that pivot-based methods outperformed cascading.
 
@@ -49,11 +49,82 @@ In the experiments below, we consider a constrained data setting similar to what
 We consider top 100K sentences for our direct system while considering only top 50K of those for our source pivot system. This gives us some common words to use for triangulation but not all of 100K, which would have brought us on or above par with our direct system. On the other hand, we use all available data on our pivot target system, which is approximately 2 million lines of parlimentary proceedings of Europarl version 7. We report results on 3 languages, French(fr), Spanish(es) and German(de), all translating into English. All the results are using one pivot language. The language model used is a 5-gram Kneser-Ney interpolated language model using the English side of Europarl. 
 
 
-\subsection{Baselines}
-	
 
 
+\subsection{Results}
+	The baseline models are trained on the top 100K sentences of fr-en, es-en and de-en. The results are as shown in Table~\ref{table:eparlbaselines}
+\begin{table*}
+	\begin{tabular}{lr}
 
+	\toprule
+	System & BLEU \\
+	\toprule
+	es-en & 23.32 \\
+	fr-en & 19.53 \\
+	de-en & 15.60 \\
+	\bottomrule
+	\end{tabular}
+	\centering
+	\small
+	\caption{Baselines for our setting for all three languages}
+	\label{table:eparlbaselines}
+\end{table*}
+
+	Before we report our results on Interpolation, lets find how far we can reach in terms of BLEU scores when only using the triangulated table. As the triangulated table uses multi-parallel corpora, intuitively, we should perform as well as the baseline at the least. Observe the results in~\ref{table:eparltopn}
+	\begin{table*}
+	\begin{tabular}{lrrrrrrr}
+		\toprule
+		src-tgt & pivot & baseline & top20 & top40 & top60 & top80 & top100 \\
+		\toprule
+		de-en & fr & \emph{15.60} & 13.32 & 13.33 & 13.35 & 13.42 & 13.03 \\
+		de-en & es & \emph{15.60} & 13.37 & 13.17 & 13.49 & 13.34 & 13.36 \\
+		fr-en & de & \emph{19.53} & 16.21 & 15.82 & 15.89 & 16.08 & 15.95 \\
+		fr-en & es & \emph{19.53} & 17.77 & 18.15 & 17.99 & 18.01 & 18.27 \\
+		es-en & fr & \emph{23.32} & 21.35 & 21.18 & 20.83 & 21.01 & 21.45\\
+		es-en & de & \emph{23.32} & 18.36 & 19.19 & 19.35 & 19.23 & 18.97 \\
+		\bottomrule
+		\end{tabular}
+		\centering 
+		\small
+		\label{table:eparltopn}
+	\end{table*}
+
+	But, we observe a consistent drop in BLEU scores compared to the baseline. Our constrained source pivot means that the number of OOVs for the triangulated table are more than the OOVs for the direct system. With more OOVs, the BLEU score reduces due to the reduction in the modified unigram precision as discussed in~\nameref{sec:generic_pipeline}. 
+
+	\begin{tabular}{llrrrrrr}
+	\toprule
+	src-tgt & pivot & baseline & top20 & strength & M1 & joint & all \\
+	\toprule
+	de-en & fr & 15.60 & 15.45 & 15.62 & 15.24 & 15.52 \\
+	de-en & es & 15.60 & 15.55 & 15.55 & 15.49 & 15.61  \\
+	fr-en & de & 19.53 & 19.85 & 19.85 & 19.92 & 19.76  \\
+	fr-en & es & 19.53 & 19.86 & 19.90 & 20.03 & 19.66  \\
+	es-en & fr & 23.32 & 23.66 & 23.66 & 23.85 & 23.70  \\
+	es-en & de & 23.32 & 23.68 & 23.55 & 23.84 & 23.65  \\
+	\bottomrule
+	\centering
+	\small
+	\label{table:eparlintertopn}
+	\end{tabular}
+
+	The results using the top-20 interpolation method, top20 + strength model, Model1 substition and the Joint model are reported in Table~\ref{table:eparlintertopn}. We observe that vanilla interpolation brings the BLEU score close or a little more than the baseline for all the language pairs. We see that adding the connectivity features, Model 1 scores or the Joint feature does not make a discernible difference to the BLEU scores. In figures~\ref{figure:fr_es_en} and~\ref{figure:de_es-en}, we report multiplication factors for de-en via Spanish(es) and fr-en via Spanish(es). We see that fr-en table does not grow a lot in size using Spanish as the pivot. This could be because the fr-es source pivot table does not have many rules to use in the pivot target table. On the other hand, the de-en table shows a lot more multiplicity. Having said that, both the triangulated models do not outperform their respective baselines. In fact, they get more than 1.5 BLEU points atleast compared to the baseline models. Thus, lack of multiplicity is not a factor when dealing with Europarl data like here. 
+ 
+	\begin{figure*}
+		\small
+		\centering
+		\includegraphics[width=0.45\textwidth]{files/Tables/fr_es_en.eps}
+		\caption{fr-en triangulated via spanish not showing  a lot of multiplicity}
+		\label{figure:fr_es_en}
+	\end{figure*}
+
+	\begin{figure*}
+		\small
+		\centering
+		\includegraphics[width=0.45\textwidth]{files/Tables/de_es_en.eps}
+		\caption{de-en triangulated via Spanish showing more multiplicity}
+		\label{figure:de_es-en}
+	\end{figure*}
 
 \section{Domain Adaptation}
+
 
