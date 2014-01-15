@@ -44,8 +44,12 @@
 \captionsetup[algorithm]{labelfont=rm,labelsep=colon,font=footnotesize}\newcommand{\pemp}{\tilde{p}}
 %\newcommand{\sto}{\!\shortrightarrow\!}
 \newcommand{\sto}{\shortrightarrow}
-\newcommand{\argmax}[1]{\ensuremath{\underset{#1}{\mathrm{argmax}\;}}}
-\newcommand{\argmin}[1]{\ensuremath{\underset{#1}{\mathrm{argmin}\;}}}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+%\newcommand{\argmax}[1]{\ensuremath{\underset{#1}{\mathrm{argmax}\;}}}
+%\newcommand{\argmin}[1]{\ensuremath{\underset{#1}{\mathrm{argmin}\;}}}
+\newcommand*{\argminl}{\argmin\limits}
+\newcommand*{\argmaxl}{\argmax\limits}
 \newcommand*\mystrut[1]{\vrule width0pt height0pt depth#1\relax}
 \newcommand{\smathcal}[1]{_{\mathcal{#1}}}
 %\DeclareMathOperator*{\argmax}{arg\,max}
@@ -235,7 +239,8 @@
 \input{files/05-introduction} 
 \input{files/06-triangulation}
 \input{files/07-reality}
-\input{files/08-conclusion}
+\input{files/08-relatedwork}
+\input{files/09-conclusion}
 %\input{files/06-baselines}
 %\input{files/07-triangulation}
 %\input{files/08-designchoices}

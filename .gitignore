@@ -1,3 +1,4 @@
 *.pdf
 .nfs*
-.aux
+*.aux
+*.fdb_latexmk

@@ -13,8 +13,9 @@
 \chapter{Introduction}
 \label{sec:introduction}
 
-\section{Why study Low-Resource?}
+\section{Why study Low-Resource languages?}
 \label{sec:low_resource}
+
 Statistical Machine Translation(SMT) has enabled several languages like French, Spanish, Finnish and others to have publicly available translation systems which can translate from and into these languages. Google Translate has 81 languages you can translate from and to. In 2003, we had none ! 
 
 
@@ -40,10 +41,9 @@ Having said that, more than 90\% of the World languages do not have a publicly a
 	%\centering
 \end{table*}
 
+Studying languages with insufficient resources throws up interesting and unique linguistic challenges  Providing a solution for the challenges takes us a little closer towards the quest for a universal translation. For instance, Malagasy has influence from French and Arabic. While there are some loan words from French, the numbers are written right-to-left like Arabic, while also having some vocabulary overlap with Bantu. Diacritics are used but only in certain circumstances. On the other hand, Mawukakan and Maninkakan show a more frequent usage of diacritics. But the accent can be different depending on the placement of the word. Haitian Kreyol is a French-based Creole but does not share any vocabulary with Parisian French. The influence is from 18th century French when Haiti was ruled by France. Haitian Kreyol became an official language only in 1961. Like is typical of Creoles, the language shares some characteristics (e.g word order) with French but the vocabulary has undergone change according to the local dialects. 
 
-All the four languages we study also throw up interesting linguistic challenges that are not always seen in the major languages. For instance, Malagasy has influence from French and Arabic. While there are some loan words from French, the numbers are written right-to-left like Arabic. It also shows vocabulary overlap with Bantu. Diacritics are used but only in certain circumstances. On the other hand, Mawukakan and Maninkakan show a more frequent usage of diacritics. But the accent can be different depending on the placement of the word. Haitian Kreyol is a French-based Creole but does not share any vocabulary with Parisian French. The influence is from 18th century French where Haiti was ruled by France. Haitian Kreyol became an official language only in 1961. Like is typical of Creoles, the language shares some characteristics (e.g word order) with French but the vocabulary has undergone change according to the local dialects. Studying low-resource languages will take us further towards the quest for a universal translator. 
-
-\section{Pipeline}
+\section{Phrase-based SMT Pipeline}
 To the interested reader, we refer to the comprehensive and readable SMT survey~\cite{Lopez07asurvey}. Below, we discuss the pipeline for phrase-based SMT~\cite{Koehn:03} which has been used for all the experiments in the dissertation, and discuss how a low-resource language pairs raises question at each stage. 
 
 SMT uses data-driven models to translate sentences in a source language to a given target language. Given a parallel corpus between \emph{s} and \emph{t}, a phrase-based SMT system has a generic pipeline that looks as described in Algorithm~\ref{algo:pbsmt}. 
@@ -64,12 +64,30 @@ SMT uses data-driven models to translate sentences in a source language to a giv
 \end{algorithmic}
 \end{algorithm}
 
-The reason its called phrase-based SMT is because the base unit of translation are \emph{phrases}. The phrases need not be linguistically motivated. Phrases in this context means a group of words. In this dissertation, we only use phrase-based SMT for all the experiments but there are others in the literature.  \alert{cite Galley, Chiang and anybody else if needed} 
+The reason its called phrase-based SMT is because the base unit of translation are \emph{phrases}. The phrases need not be linguistically motivated. Phrases in this context means a continuous group of words. In this dissertation, we only use phrase-based SMT for all the experiments but there are others in the literature.~\cite{Chiang:07,Michel:04}
 
 Each step of Algorithm~\ref{algo:pbsmt} outlined above raises questions when faced with a low-resource language pair. Low-resource languages are those with insufficient resources to use for Machine Translation into and/or from the language. To provide perspective, French has a corpus with $10^9$ parallel sentences with English. On the other hand, the language with the highest amount of data in this dissertation is Haitian Kreyol, with 121K sentences. Out of those 121K, only 16\% are from the target domain, the sentences are noisy and with punctuation and spelling mistakes.
 
 
-Lets consider each step and discuss the problems that come up. Given parallel data, the goal of the alignment models~\cite{Brown:1993,Vogel:1996} is to learn which word in source language \emph{s} translates to target language \emph{t} and assign a likelihood to the pair of words. The advanced alignment models use initial alignments from IBM Model 1. Model 1 starts with uniform initialization and uses Expectation Maximization~\cite{Dempster:77} to converge. Facing a corpus of a small size, the alignment models will end up making inferences that are not always true. They will place higher likelihood on pairs seen fewer number of times due to lack of more data. The phrase extraction step(Line~\ref{aline:scores}) looks at alignments learnt from Line~\ref{aline:alignments} in both directions and determines which phrases can translate from one language to another using the intersection of the alignments. At the end of this step, we have a phrase table which has rules of the following form : 
+Lets consider each step and discuss the problems that come up. Given parallel data, the goal of the alignment models~\cite{Brown:1993,Vogel:1996} is to learn which word in source language \emph{s} translates to target language \emph{t} and assign a likelihood to the pair of words. The advanced alignment models use initial alignments from IBM Model 1. Model 1 starts with uniform initialization and uses Expectation Maximization~\cite{Dempster:77} to converge. Facing a corpus of a small size, the alignment models will end up making inferences that are not always true. They will place higher likelihood on pairs seen fewer number of times due to lack of more data. At the end of the alignment process, we will have two alignment files. The forward alignment file will say which words in the target language align to which words in the source language. The backward alignment file will say vice-versa. An entry from the backward and forward alignment files would look like shown in Table~\ref{table:example_fwd_backward}. The \emph{forward} line says that the target word ``a'' is aligned to nothing on the source side, while bit is aligned to enpe and everywhere is aligned to both tout and kote. The \emph{backward} line says the same thing but the target side is Haitian Kreyol. 
+
+\begin{table*}
+\small
+\small
+\begin{tabular}{lp{0.3\textwidth}p{0.5\textwidth}}
+\toprule
+direction & tgt & src \& alignment \\
+\toprule
+\emph{forward} & enpe tout kote & NULL ({ }) a ({ }) bit ({ 1 }) everywhere ({ 2 3 })  \\
+\emph{backward} & a bit everywhere & NULL ({ }) enpe ({ 1 2 }) tout ({ }) kote ({ 3 }) \\
+\bottomrule
+\end{tabular}
+\caption{Example of a forward and backward alignment}
+\label{table:example_fwd_backward}
+\end{table*}
+
+
+The phrase extraction step(Line~\ref{aline:scores}) looks at alignments learnt from Line~\ref{aline:alignments} in both directions and determines which phrases can translate from one language to another using the intersection of the alignments. There are several ways of considering the intersection in the literature, but we consider the approach outlined in~\cite{Koehn:03}. Essentially, after the intersection, points are added if they are in the union of the bi-directional alignments and connects a previously unaligned word. This heuristic is known as \emph{grow-diag-final-and}. At the end of this step, we have a phrase table which has rules shown in Table~\ref{table:example_rule} : 
 
 \begin{table*}[ht]
 \small
@@ -86,7 +104,7 @@ src & tgt & features \\
 \label{table:example_rule}
 \end{table*}
 
-The table~\ref{table:example_rule}  says that the source phrase ``! la situacion de haiti , '' translate to the target phrase ``concerned about the situation in haiti ,'' with the feature values shown on the right. 
+The table~\ref{table:example_rule}  says that the source phrase \textbf{! la situacion de haiti ,} translate to the target phrase \textbf{concerned about the situation in haiti ,} with the feature values shown on the right. 
 
 \begin{table*}
 	\small
@@ -113,7 +131,7 @@ The 5 features are mentioned in Table~\ref{table:features}. The two $p_{w}$ are 
 	p_{w}(f \mid e) = \frac{c(f, e)}{\mathlarger{\sum\limits_{\grave{f}}}c(\grave{f}, e)}
 \end{equation}
 
-The counts referred to in equation~\eqref{eq:trans} are obtained from the alignments. Note that the alignment models that were learnt on the smaller corpus will cause some propagation of errors in the phrasal probabilities. 
+The counts referred to in equation~\eqref{eq:trans} are obtained from the alignments. Note that the alignment models that were learnt on a small-sized corpus will cause some propagation of errors in the phrasal probabilities. 
 
 The lexical features~\cite{Koehn:03} are actually computed as shown in equation~\eqref{eq:lex} : 
 
@@ -125,33 +143,162 @@ The lexical features~\cite{Koehn:03} are actually computed as shown in equation~
 
 The intuition behind having a pair of lexical features is to reward syntactic phrases while penalizing spurious ones. As shown in equation~\eqref{eq:lex}, the lexical probability is the product of the lexical alignment probabilities of the constituent words in the phrase table. Hence, if a longer source phrase aligns to an equally long target phrase, it can be penalized if the individual words are not aligned. 
 
-Having learnt translation pairs with their respective features, we now want to know which features are better indicators of good translations and vice-versa. For weight learning, we use Minimum Error Rate Training. Before discussing MERT, its important to know about BLEU~\cite{Papineni:02}, Bilingual Evaluation Understudy. BLEU is the error metric used most often when comparing output translations with reference translations. \alert{discuss BLEU for one or two sentences}
+Having learnt translation pairs with their respective features, we now want to know which features are better indicators of good translations and vice-versa. For weight learning, we use Minimum Error Rate Training. Before discussing MERT, its important to know about BLEU~\cite{Papineni:02}, Bilingual Evaluation Understudy. BLEU is the error metric used most often when comparing output translations with reference translations. BLEU compares an output translation with a reference translation according to equation~\eqref{eq:BLEU}
 
-Minimum Error Rate Training chooses weights for features that minimize BLEU score loss given a ``tuning'' set. A ``tuning'' set is a set of parallel sentences between source and target that is in the same domain as the test and of the same type. For instance, when trying to improve translations for Haitian Kreyol short messages, we have tuning and test in the same domain, SMS. Although our training is 85:15 mix of OOD:SMS. Essentially, MERT takes translation pairs generated from a mixture of domains corpus and tunes the weights such that the translations are more like that target domain. As our training rules have been extracted from a smaller corpora that has not been manually sentence-aligned, MERT is learning weights for features that have values which are not always true. This is why we re-tune our weights for the interpolated model after obtaining a translated table with scaled values from the much larger fr-en table. 
+\begin{equation} \label{eq:BLEU}
+	BLEU_{score} = BP. \sum\limits_{i=1}^n w_{i}p_{i}
+\end{equation}
+
+where $w_{i}$ is the weight to the n-gram while $p_{i}$ is the modified n-gram precision. 
+
+Modified n-gram precision is a corpus-based count of the n-gram, which is modified to not count the co-occurences which are repeated in the same sentence. For instance, for an output translation, \begin{verbatim}the the the the the the the\end{verbatim} with a reference translation \begin{verbatim}the cat on a mat\end{verbatim}, the co-occurence of ``the'' is only counted once. And not 7 times. 
+
+The modified precision explained above is defined as in equation~\eqref{eq:precision}
+
+\begin{equation} \label{eq:precision}
+	p_{n} = \frac{\mathlarger{\sum\limits_{c \in \{Candidates\}}} \mathlarger{\sum\limits_{n-gram \in c}Count_{clip}(n-gram)}}
+			{\mathlarger{\sum\limits_{\acute{c} \in \{Candidates\}}} \mathlarger{\sum\limits_{n-gram\acute{} \in \acute{c}}Count(n-gram\acute{})}}
+\end{equation}
+
+where Candidates refers to the target set of sentences. 
+
+Minimum Error Rate Training chooses weights for features that minimize BLEU score loss given a ``tuning'' set. A ``tuning'' set is a set of parallel sentences between source and target that is in the same domain as the test and of the same type. For instance, when trying to improve translations for Haitian Kreyol short messages, we have tuning and test in the same domain, SMS, although our training is 85:15 mix of OOD:SMS. Essentially, MERT takes translation pairs generated from a mixture of domains corpus and tunes the weights such that the translations are more like that target domain. In Haitian Kreyol, as our training rules have been extracted from a smaller corpora that has not been manually sentence-aligned, MERT is learning weights for features that have values which are not always true. This is why we re-tune our weights for the interpolated model after obtaining a translated table with scaled values from the much larger fr-en table. 
+
+The goal of MERT is to find parameters $\lambda_{1}^{M}$ for M feature functions $h_{1}^{M}$ to minimize the minimum BLEU loss, where BLEU is the error count metric, given set of source sentences $F_{1}^{S}$ with reference translations $R_{1}^{S}$, each source sentence having n-best candidate translations $c_{1}^{n}$. 
+
+\begin{equation} \label{eq:maximization_mert}
+	\hat{e}(f_{s};\lambda_{1}^M) = \argmax_{e \in C} \mathlarger\sum\limits_{m=1}^{M} \lambda_{m}h_{m}(e \mid f_{s})
+\end{equation}
+
+
+
+The error count is shown in equation~\eqref{eq:errorcount}\footnote{The equations about line search in MERT are from Phillipp Koehn's textbook on SMT}
+
+\begin{equation} \label{eq:errorcount}
+	\lambda_{1}^{M} = \argmin_{\lambda_{1}^{m}} \mathlarger{\sum\limits_{s=1}^{S}E(r_{s}, \hat{e}(f_{s};\lambda_{1}^{m}))}
+\end{equation}
+
+The key to MERT is doing a line search along one feature while keeping the others constant. Lets assume a corpus of one line. In the first iteration of MERT, a \emph{n-best} list will be generated. These are the top-\emph{n} translations by the decoder by using the default weights for all the features. For a given sentence, the n-best list might look like shown in Table~\ref{table:nbest}. After this n-best list is generated, the task is to find the best translation for the given source sentence. Remember that each sentence has several features and MERT has to learn weights for each. The overall likelihood for the sentence is defined by equation~\eqref{eq:line_likelihood}. The best is defined by the sentence which minimizes the error(equation~\eqref{eq:mert_best}). 
+
+\begin{equation} \label{eq:line_likelihood}
+	p(x) = \exp\mathlarger{\sum_{i=1}^n}\lambda_{i}h_{i}(x)
+\end{equation}
+
+\begin{equation} \label{eq:mert_best}
+	x_{best}(\lambda_{1}, ..., \lambda_{n}) = argmax_{x}\exp\sum_{i=1}^n \lambda_{i}h_{i}(x)
+\end{equation}
+
+At this point, MERT decides to do a line search. We can learn the best weight for one feature, say at index ``c'', by keeping all the other features constant. This is shown in equation~\eqref{eq:line}
+
+
+\begin{equation} \label{eq:line}
+	u(x) = \mathlarger{\sum_{i \neq c}\lambda_{i}h_{i}(x)}
+\end{equation}
+
+Now, the equation~\eqref{eq:mert_best} will look like equation~\eqref{eq:new_best}. 
+
+\begin{equation} \label{eq:new_best}
+	x_{best}(\lambda_{c}) = argmax_{x} \lambda_{c}h_{c}(x) + u(x)
+\end{equation} 
+
+Now, each translation in the n-best list is the line of an equation and the points at which the best $\lambda$ for this line will change is at the points where the line intersects. The best $\lambda$ can be found in the same way for all the lines in the tuning set and the one that minimizes BLEU loss over the whole corpus becomes the weight for this feature. 
+
+The process outlined above explains both the good and bad about MERT. The good being that MERT works effectively around the fact that we have a scenario of minimizing BLEU loss, which is not smoothed and which is a corpus level error metric, inside an \emph{argmax} as in equation ~\eqref{eq:maximization_mert}. The bad is that MERT does not scale to many features. At each iteration, weights have to be learnt for all the features. After the iteration, the n-best list is regenerated to have the maximum number of entries, done to cover the hypothesis space as much as possible. To avoid local minima, in practice, MERT is started from not one but a few random points.
+
+
+
+\begin{table*}
+	\begin{tabular}{p{0.4\textwidth}p{0.6\textwidth}}
+		\toprule
+		src & n-best list \\
+		\toprule
+		\multirow{10}{*}{ki kote y ap bay manje ?}  & \\ 
+		& how can i find help for my province of aquin . \\
+		& how can i find help for my in aquin . \\
+		& how can i find help for my part of aquin . \\
+		& how can i find help for my province of aquin ? \\
+		& how can i find help for in my province of aquin . \\
+		& how can i find aid for in my province of aquin . \\
+		& how can i find help for my part aquin . \\
+		& how can i find help for my in aquin ?  \\
+		& how can i find help for my country aquin . \\
+		& how can i find help for my in aquin . \\
+		\bottomrule
+	\end{tabular}
+	\caption{Example of a n-best list, where n $\leq$ 100}
+	\label{table:nbest}
+\end{table*}
+
+
+
 
 Having obtained the weights and a language model on the target side, decoding refers to the process of finding the best translation for the source sentence as shown in equation~\eqref{eq:decoding}. 
 
 \begin{equation} \label{eq:decoding}
-	e_{best} = argmax_{e} \mathlarger{\prod\limits_{i=1}^I} \phi(\hat{f}_{i} | \hat{e}_{i})p_{LM}(e)d(start_{i} - end_{i-1}-1)
+	e_{best} = \argmax_{e} \mathlarger{\prod\limits_{i=1}^I} \phi(\hat{f}_{i} | \hat{e}_{i})p_{LM}(e)d(start_{i} - end_{i-1}-1)
 \end{equation}
 
-Phrase-based SMT has been used with great success before in the literature. But, as described above, the approach is very data-driven and it is not clear how to achieve fluent translations with only a little parallel data. 
+
+Phrase-based SMT has been used with great success before in the literature. But, as described above, the approach is quite data-driven and it is not clear how to achieve fluent translations with only a little parallel data.  
+
+\section{Why use triangulation?}
+
+The easiest way to get better translations is to have more data between the source and target languages. As the amount of data increases, the models will learn the correct alignments which leads to more meaningful translation rules with accurate feature values and thus, more fluent translations. The second easiest way is to improve tokenization for the source and/or target language. Better tokenization goes a long way in pre-processing the text correctly. But, what do we do when these two options are not available ? 
+
+\newcommand{\mawuexample}[1]{\emph{$y\grave{a}ng\acute{a}l\acute{a}\grave{a}$ w$\acute{\varepsilon}\acute{\varepsilon}$ $\grave{a}$ $\grave{a}$ l$\acute{a}$kw$\acute{e}$ k$\acute{o}\acute{o}$ b$\acute{\varepsilon}$ m$\grave{a}$ .}}
+
+\newcommand{\anothermawu}[1]{\emph{\textipa{\!d}y$\grave{e}$n\textipa{\textltailn}$\acute{o}$ l$\grave{a}$ $\acute{i}$ kw$\acute{ɔ}$l$\grave{ɔ}$ $\acute{à}n$ d$\grave{a}$$\grave{a}$ l$\grave{u}$ m$\grave{a}$ }}
+
+%\anothermawu is test
+\begin{table}
+	\caption{Without and with triangulation}
+	\footnotesize
+	\small
+	\begin{tabular}{p{0.35\textwidth}p{0.45\textwidth}p{0.2\textwidth}}
+	\toprule
+	src & translations & Explanation \\
+	\toprule
+	\multirow{3}{*}{\mawuexample} 
+	& her father y$\grave{a}$̀ng$\acute{a}$́l$\acute{o}$́$\grave{o}$̀ has l$\grave{a}$́kw$\grave{e}$́ everything . & translation from the direct system 
+	\\ \cmidrule(r){2-3}
+	&  the disease her father is not in a position to everything . & translation from the interpolated system 
+	\\ \cmidrule(r){2-3}
+	&  \emph{the illness has rendered her father invalid .}  & the reference 
+	\\  
+	\midrule
+	\midrule
+	\multirow{3}{*}{\anothermawu} 
+	&  the entrance of the child behind her back and let us go home . & translation from the direct system \\
+	\cmidrule(r){2-3}
+	&  the child behind her back and let us go home . & translation from the interpolated system \\
+	\cmidrule(r){2-3}
+	& \emph{take the baby in your back and let 's go home !} & reference translation \\
+	\bottomrule
+	\end{tabular}
+	\\[3.5pt]
+	{\centering \emph{Example using Mawukakan as src, top-\emph{n} as interpolated model, both examples from heldout}}
+	\label{table:mawu_improvement}
+\end{table}
 
 
-The approach of triangulation~\cite{Cohn:07,Utiyama:07,Nakov:12} aims to add translations for new source phrases while also improving translations for existing source phrases. New source phrases can be added if one has a rich source pivot corpora that leads to a new target phrase in the pivot target corpus. In a low resource scenario, its important to achieve both aims with triangulation. Owing to less training data, the direct system has several out-of-vocabulary(OOV) words. We aim to reduce the number by using triangulation. But, in case of Haitian Kreyol and Malagasy, where our source pivot corpus is completely disjoint and out-of-domain with the direct and pivot target system, we also aim to improve the translations of existing phrases. As we will show in section ~\ref{sec:results}, we do improve translations for both.  
+In the Table~\ref{table:mawu_improvement}, we mention a sentence in Mawu from the heldout data. The direct translation is the output translation we obtain by only using the 3K training sentences we have. The interpolated output shown is the output after interpolating a triangulated model with the direct translation model. The reference translation is the best translation for that sentence. The word \emph{$y\grave{a}ng\acute{a}l\acute{a}\grave{a}$} and \emph{l$\acute{a}$kw$\acute{e}$} are out-of-vocabulary words for the direct system. Words that have no translations in the phrase table are out-of-vocabulary words. By using an English translation via the Europarl corpus, we translate all the source words in the interpolated table. In the second example, all the source words are known. But, we get a weird ``the entrance'' phrase in the beginning. What went wrong ? When we look deeper, we see that ``the entrance'' is one of the top translations for the word l$\grave{a}́$, out of 23 translations in the direct table. After triangulation and interpolating with the direct system, it has 1615 translations and ``the entrance'' is nowhere to be seen. This is because some of the translations of l$\grave{a}́$ have common pivot phrases which end up making the translation model give lower value to the existing ones. 
 
+
+The approach of triangulation~\cite{Cohn:07,Utiyama:07,Nakov:12} aims to add translations for new source phrases while also improving translations for existing source phrases. New source phrase translations(like shown in Table~\ref{table:mawu_improvement}) can be added if one has a rich source pivot corpora that leads to a new target phrase in the pivot target corpus. In a low resource scenario, its important to achieve both aims with triangulation. Owing to less training data, the direct system has several out-of-vocabulary(OOV) words. We aim to reduce the number by using triangulation. At the same time, it is reasonable to assume that the source phrases we do have translations for are not always right. For instance, in case of Haitian Kreyol, our BLEU score gains are not as high as Mawukakan but we do improve translations for the existing source phrases. ( Example in~\nameref{sec:results})
 
 \section{Dissertation Outline}
 \label{sec:outline}
 Chapter~\ref{chapter:reality} describes the four low-resource languages we study followed by the models and results. \alert{add the chapter about Europarl}.
 
-\section{Contributions}
+\section{Contributions of this dissertation}
 \label{sec:summary}
 We conduct the first in-depth study of triangulation, the first using four real low-resource languages with realistic data settings. As part of the dissertation, we also build the first translation systems for three of the four languages. Our best Haitian-Creole system outperform the best system from the Sixth Workshop on Machine Translation, 2011. 
 
 
-\section{Setup}
+\section{Experimental Setup}
 \label{sec:setup}
 
 
-Moses~\cite{Koehn:07} was used for all the experiments. To build our baseline systems, we followed the standard set of steps: generated bi-directional alignments using GIZA++ ~\cite{OchNey:03}, followed by phrase extraction using the --grow-diag-final-and heuristic. The decoder parameters were optimized using Minimum Error Rate Training ~\cite{Och:03} by minimizing BLEU loss on a development set. All scores reported are case-insensitive BLEU~\cite{Papineni:02}. All language models were generated using SRILM~\cite{Stolcke:02}.~\cite{Ken:11} was used for language model scoring when decoding.
+Moses~\cite{Koehn:07} was used for all the experiments. Moses is a leading publicly-available, open source SMT system with a rich documentation and active contributors. Although Moses started as a phrase-based system, it now supports more translation systems (e.g Hiero(\alert{cite Chiang}, others ?), )
+
+To build our baseline systems, we followed the standard set of steps: generated bi-directional alignments using GIZA++ ~\cite{OchNey:03}, followed by phrase extraction using the \emph{--grow-diag-final-and} heuristic. The heuristic intersects the alignments in both directions and takes the longest alignment that is common. The decoder parameters were optimized using Minimum Error Rate Training ~\cite{Och:03} by minimizing BLEU~\cite{Papineni:02} loss on a development set. All scores reported are case-insensitive BLEU. All language models were generated using SRILM~\cite{Stolcke:02}.~\cite{Ken:11} was used for language model scoring when decoding. SRILM is a language modeling toolkit for generating language models covering several smoothing and interpolation models. KenLM enables fast lookups in large language models by using efficient data structures.  
