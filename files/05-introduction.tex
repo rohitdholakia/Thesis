@@ -21,6 +21,7 @@ Statistical Machine Translation (SMT) has enabled translation between several la
 However, more than 90\% of the world languages do not have a publicly available SMT system. Most of the world's languages (over 7000 languages are currently spoken around the world) have not been studied in the context of SMT research. In Table~\ref{table:numberspeakers}, we show that the major languages typically the topic of SMT research and development have many more speakers than the languages we study in this disseration. 
 \begin{table*}
 	\begin{tabular}{lr}
+    \centering
 	\toprule
 	Language & \#speakers \\
 	\toprule
@@ -34,7 +35,7 @@ However, more than 90\% of the world languages do not have a publicly available 
 	Manin & 2M \\
 	\bottomrule
 	\end{tabular}
-	\caption{Number of speakers for Major and low-resource languages}
+	\caption{Number of speakers for major and low-resource languages}
 	\label{table:numberspeakers}
 	%\small
 	%\centering
@@ -47,6 +48,8 @@ Studying languages with insufficient resources leads to interesting and unique l
 We use a fairly standard SMT toolkit in this thesis. To the interested reader, we refer to the comprehensive and readable SMT survey by Adam Lopez~\cite{Lopez07asurvey}. In this section, we discuss the typicaly framework for phrase-based SMT~\cite{Koehn:03} which has been used for all the experiments in the dissertation, and discuss how a low-resource language pair can create a stumbling block in each stage. 
 
 SMT uses data-driven models to translate sentences in a source language to a given target language. Given a parallel corpus between \emph{s} and \emph{t}, a phrase-based SMT system has a generic pipeline that looks as described in Algorithm~\ref{algo:pbsmt}. 
+
+\anoop{Koehn has a good example of alignment and phrase extraction in his tutorial slides. You can copy the figures from there and don't forget to cite the tutorial. see page 13-14 and page 26 in: http://homepages.inf.ed.ac.uk/pkoehn/publications/tutorial2003.pdf}
 
 \begin{algorithm}
 \small
@@ -86,8 +89,9 @@ direction & tgt & src \& alignment \\
 \label{table:example_fwd_backward}
 \end{table*}
 
+\anoop{make sure that you do not stick parens with the previous word as in the following paragraph.}
 
-The phrase extraction step(Line~\ref{aline:scores}) looks at alignments learnt from Line~\ref{aline:alignments} in both directions and determines which phrases can translate from one language to another using the intersection of the alignments. There are several ways of considering the intersection in the literature, but we consider the approach outlined in~\cite{Koehn:03}. Essentially, after the intersection, points are added if they are in the union of the bi-directional alignments and connects a previously unaligned word. This heuristic is known as \emph{grow-diag-final-and}. At the end of this step, we have a phrase table which has rules shown in Table~\ref{table:example_rule} : 
+The phrase extraction step(Line~\ref{aline:scores}) looks at alignments learnt from Line~\ref{aline:alignments} in both directions and determines which phrases can translate from one language to another using the intersection of the alignments. There are several ways of considering the intersection in the literature, but we consider the approach outlined in~\cite{Koehn:03}. Essentially, after the intersection, points are added if they are in the union of the bi-directional alignments and connects a previously unaligned word. This heuristic is known as \emph{grow-diag-final-and}. At the end of this step, we have a phrase table which has rules shown in Table~\ref{table:example_rule}: 
 
 \begin{table*}[ht]
 \small
@@ -104,6 +108,8 @@ src & tgt & features \\
 \label{table:example_rule}
 \end{table*}
 
+\anoop{use consistent capital letter for Table X}
+
 The table~\ref{table:example_rule}  says that the source phrase \textbf{! la situacion de haiti ,} translate to the target phrase \textbf{concerned about the situation in haiti ,} with the feature values shown on the right. 
 
 \begin{table*}
@@ -114,26 +120,28 @@ The table~\ref{table:example_rule}  says that the source phrase \textbf{! la sit
 	\toprule
 	Feature &  Explanation \\
 	\toprule
-	$p_{w}(f \mid e)$ & probability of seeing phrase ``f'' given ``e'' \\
-	$p_{lex}(f \mid e)$ & lexical probability of seeing phrase ``f'' given ``e'' \\
-	$p_{w}(e \mid f)$ & probability of seeing phrase ``e'' given ``f'' \\
-	$p_{lex}(e \mid f)$ & lexical probability of seeing phrase ``e'' given ``f'' \\
-   	phrase penalty & a constant value penalizing distortion \\
+	$p_{w}(f \mid e)$ & probability of seeing phrase ``f'' given phrase ``e'' \\
+	$p_{lex}(f \mid e)$ & lexical probability of seeing phrase ``f'' given phrase ``e'' \\
+	$p_{w}(e \mid f)$ & probability of seeing phrase ``e'' given phrase ``f'' \\
+	$p_{lex}(e \mid f)$ & lexical probability of seeing phrase ``e'' given phrase ``f'' \\
+   	phrase penalty & a constant value penalizing distortion \anoop{give value of penalty}\\
 	\bottomrule
 	\end{tabular}
 	\caption{Features of the phrase pairs, where ``f'' is foreign/source \& ``e'' is target/english}
 	\label{table:features}
 \end{table*}
 
+\anoop{explain the log linear model for SMT here. put the equation of the log-linear model here as well.}
+
 The 5 features are mentioned in Table~\ref{table:features}. The two $p_{w}$ are the phrasal features, features that determine the likelihood of the source phrase translating to target and vice-versa. The phrasal translation likelihood is computed by using relative frequencies, as shown in equation~\eqref{eq:trans}.
 
 \begin{equation} \label{eq:trans}
-	p_{w}(f \mid e) = \frac{c(f, e)}{\mathlarger{\sum\limits_{\grave{f}}}c(\grave{f}, e)}
+	p_{w}(f \mid e) = \frac{c(f, e)}{\mathlarger{\sum\limits_{f'}}c(f', e)}
 \end{equation}
 
 The counts referred to in equation~\eqref{eq:trans} are obtained from the alignments. Note that the alignment models that were learnt on a small-sized corpus will cause some propagation of errors in the phrasal probabilities. 
 
-The lexical features~\cite{Koehn:03} are actually computed as shown in equation~\eqref{eq:lex} : 
+The lexical features~\cite{Koehn:03} are computed as shown in equation~\eqref{eq:lex} : 
 
 \begin{equation} \label{eq:lex}
 	p_{lex}(f \mid e, a) = \prod\limits_{i=1}^{n} \frac{1}{\{j | (i,j) \in a\}}
@@ -141,7 +149,10 @@ The lexical features~\cite{Koehn:03} are actually computed as shown in equation~
 \end{equation}
 
 
-The intuition behind having a pair of lexical features is to reward syntactic phrases while penalizing spurious ones. As shown in equation~\eqref{eq:lex}, the lexical probability is the product of the lexical alignment probabilities of the constituent words in the phrase table. Hence, if a longer source phrase aligns to an equally long target phrase, it can be penalized if the individual words are not aligned. 
+The intuition behind having a pair of lexical features is to reward phrases that contain high probability alignments while penalizing phrases with poor alignments, which are likely to be spurious and lead to worse translations. As shown in equation~\eqref{eq:lex}, the lexical probability is the product of the lexical alignment probabilities of the constituent words in the phrase table. 
+%Hence, if a longer source phrase aligns to an equally long target phrase, it can be penalized if the individual words are not aligned. 
+
+\anoop{now explain how to learn the weights of the log-linear model introduced above}
 
 Having learnt translation pairs with their respective features, we now want to know which features are better indicators of good translations and vice-versa. For weight learning, we use Minimum Error Rate Training. Before discussing MERT, its important to know about BLEU~\cite{Papineni:02}, Bilingual Evaluation Understudy. BLEU is the error metric used most often when comparing output translations with reference translations. BLEU compares an output translation with a reference translation according to equation~\eqref{eq:BLEU}
 
@@ -162,9 +173,13 @@ The modified precision explained above is defined as in equation~\eqref{eq:preci
 
 where Candidates refers to the target set of sentences. 
 
-Minimum Error Rate Training chooses weights for features that minimize BLEU score loss given a ``tuning'' set. A ``tuning'' set is a set of parallel sentences between source and target that is in the same domain as the test and of the same type. For instance, when trying to improve translations for Haitian Kreyol short messages, we have tuning and test in the same domain, SMS, although our training is 85:15 mix of OOD:SMS. Essentially, MERT takes translation pairs generated from a mixture of domains corpus and tunes the weights such that the translations are more like that target domain. In Haitian Kreyol, as our training rules have been extracted from a smaller corpora that has not been manually sentence-aligned, MERT is learning weights for features that have values which are not always true. This is why we re-tune our weights for the interpolated model after obtaining a translated table with scaled values from the much larger fr-en table. 
+Minimum Error Rate Training chooses weights for features that minimize BLEU score loss given a ``tuning'' set. A ``tuning'' set is a set of parallel sentences between source and target that is in the same domain as the test and of the same type. For instance, when trying to improve translations for Haitian Kreyol short messages, we have tuning and test in the same domain, SMS, although our training is 85:15 mix of out of domain data versus in-domain SMS data. Essentially, MERT takes translation pairs generated from a mixture of domains corpus and tunes the weights such that the translations are more like that target domain. In Haitian Kreyol, as our training rules have been extracted from a smaller corpora that has not been manually sentence-aligned, MERT is learning weights for features that have values which are not always true. This is why we re-tune our weights for the interpolated model after obtaining a translated table with scaled values from the much larger French-English table. 
+
+\anoop{do not use abbreviations especially if you have not introduced the full length version before}
 
 The goal of MERT is to find parameters $\lambda_{1}^{M}$ for M feature functions $h_{1}^{M}$ to minimize the minimum BLEU loss, where BLEU is the error count metric, given set of source sentences $F_{1}^{S}$ with reference translations $R_{1}^{S}$, each source sentence having n-best candidate translations $c_{1}^{n}$. 
+
+\anoop{what is ``error count'' metric mean? do you just mean the evaluation metric? what is $C$? what is $E(\cdot)$ in equation 1.6 below?}
 
 \begin{equation} \label{eq:maximization_mert}
 	\hat{e}(f_{s};\lambda_{1}^M) = \argmax_{e \in C} \mathlarger\sum\limits_{m=1}^{M} \lambda_{m}h_{m}(e \mid f_{s})
@@ -234,6 +249,8 @@ The process outlined above explains both the good and bad about MERT. The good b
 
 Having obtained the weights and a language model on the target side, decoding refers to the process of finding the best translation for the source sentence as shown in equation~\eqref{eq:decoding}. 
 
+\anoop{this eqn needs some parentheses. what is $d$ below? the eqn looks incorrect to me.}
+
 \begin{equation} \label{eq:decoding}
 	e_{best} = \argmax_{e} \mathlarger{\prod\limits_{i=1}^I} \phi(\hat{f}_{i} | \hat{e}_{i})p_{LM}(e)d(start_{i} - end_{i-1}-1)
 \end{equation}
@@ -302,4 +319,6 @@ We conduct the first in-depth study of triangulation, the first using four real 
 
 Moses~\cite{Koehn:07} was used for all the experiments. Moses is a leading publicly-available, open source SMT system with a rich documentation and active contributors. 
 
-To build our baseline systems, we followed the standard set of steps: generated bi-directional alignments using GIZA++ ~\cite{OchNey:03}, followed by phrase extraction using the \emph{--grow-diag-final-and} heuristic. The heuristic intersects the alignments in both directions and takes the longest alignment that is common. The decoder parameters were optimized using Minimum Error Rate Training ~\cite{Och:03} by minimizing BLEU~\cite{Papineni:02} loss on a development set. All scores reported are case-insensitive BLEU. All language models were generated using SRILM~\cite{Stolcke:02}.~\cite{Ken:11} was used for language model scoring when decoding. SRILM is a language modeling toolkit for generating language models covering several smoothing and interpolation models. KenLM enables fast lookups in large language models by using efficient data structures.  
+To build our baseline systems, we followed the standard set of steps: generated bi-directional alignments using GIZA++ ~\cite{OchNey:03}, followed by phrase extraction using the \emph{--grow-diag-final-and} heuristic. The heuristic intersects the alignments in both directions and takes the longest alignment that is common. The decoder parameters were optimized using Minimum Error Rate Training ~\cite{Och:03} by minimizing BLEU~\cite{Papineni:02} loss on a development set. All scores reported are case-insensitive BLEU. All language models were generated using SRILM~\cite{Stolcke:02}. KenLM~\cite{Ken:11} was used for language model scoring when decoding. SRILM is a language modeling toolkit for generating language models covering several smoothing and interpolation models. KenLM enables fast lookups in large language models by using efficient data structures.  
+
+\anoop{chapter ends very abruptly. can you introduce what happens next?}
