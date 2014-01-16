@@ -1,11 +1,44 @@
 \chapter{Conclusion \& Future Work}
 \label{chap:conclusion}
 
-\section{More Sophisticated Lexical Models}
+\section{Conclusion}
+	In this dissertation, we observe that the approach of triangulation helps when used with low-resource languages. For 3 languages, we conduct the first study in SMT literature and report significant improvements by using triangulation. We also find that paying attention to design choices leads to small but consistent improvements. Finally, insights from domain adaptation help in learning the best ways of combining models from different corpora when using triangulation in low-resource scenarios. 
+\section{Future Work}
+\subsection{More Sophisticated Lexical Models}
+	We tried IBM Model 1 in place of lexical scores that were summed up over all pivot phrases. In future work, we would like to explore more sophisticated lexical models. For instance, we use \emph{--grow-diag-final-and} as our alignment heuristic, which actually is quite conservative as it considers intersection of alignments in both directions and only adds unaligned phrases if they are part of the union of the alignments. We could only use the forward alignments of source pivot and intersect with the forward of pivot target, bypassing the backward alignments, and use the counts obtained from the forward ones to initialize Model 1. This will nullify some of the aggressiveness of \emph{--grow-diag-final-and} 
 
-\section{Using Hierarchical phrase-based SMT}
+	As the connectivity features and the Model 1 features are complementary, we can also change the initialization of Model 1 to reflect the word alignment score and the phrase-level connectivity. Using IBM Model 3 is trickier as its not very clear what fertility is optimum for the given low-resource languages. 
 
-\section{Considering Sub-phrases}
+
+\subsection{Using Hierarchical phrase-based SMT}
+	In all the experiments, we used phrase-based SMT systems. In hierarchical phrase-based systems~\cite{Chiang:07}, we can translate phrases with gaps. Essentially, this generates a lot more phrase rules while also being able to translate phrases with longer reorderings. Hiero systems have not been used before for low-resource triangulation and it will be interesting to see if more possible rules with gaps lead to better translations. 
+
+\subsection{Considering Sub-phrases}
+	A restriction of pivot-based triangulation is the contingence upon exact matches of pivot phrases. A french translation ``le pivot el muli'' has to be the exact same phrase on the french-english table to be used for the triangulated table. An alternative would be to consider sub-phrases. 
+
+	Consider a source pivot pair, 
+
+	\indent
+		h$_{1}$ h$_{2}$ h$_{3}$ $|||$ a$_{1}$ a$_{2}$ a$_{3}$
+
+	Now say that a$_{1}$ a$_{2}$ a$_{3}$ does not exist in the pivot target table. The source phrase will not end up with any target phrases from triangulation. But, assume that a$_{2}$ a$_{3}$ exists in the pivot target table having 55 translations. If we could align h$_{1}$ h$_{2}$ h$_{3}$ to all those target phrases with corresponding scores computed as before, we have new rules that would not have been if we had not taken sub-phrases. 
+
+	Its ambiguous to consider any source phrase. Instead of considering any sub-phrase, we might perform better by considering only consecutive words that make up sub-phrases. Also, on the source side, instead of considering the whole sub-phrase, it will be more realistic to only consider words on the source side that are actually aligned to the sub-phrase we are triangulating with. 
+
+	Considering sub-phrases is an even more interesting challenge when using hierarchical phrase-based systems. They have Synchronous Context-Free Grammars as rules, something of the following form : 
+
+	\begin{equation}
+		I X_{1} X_{2} ||| go to X_{1} X_{2}
+	\end{equation}
+
+	X$_{1}$ and X$_{2}$ are known as ``gaps'', essentially they are gaps that can be filled by other phrases. But, there are constraints on how the non-terminals can be positioned. Firstly, there can only be 2 on the source side. As the pivot of source pivot is the source of pivot target, we can essentially only triangulate with rules having 2 non-terminals. When trying to consider sub-phrases, we will have to consider how to deal with non-terminals. For ``go to X$_{1}$ X$_{2}$'', do we consider ``to X$_{2}$'' as a pivot ? Or ``to X$_{1}$'' ? 
+
+	If we assume either of them as pivots, what about the non-terminals on the source and target side ? We will also need a new feature function which models the sub-phrases themselves and their connectivity, something like the connectivity features used above but with non-terminals. 
+
+\subsection{Faster Parameter Learning}
+	In all the interpolation experiments, we are learning one parameter. When using more translation models, the approach of using CONDOR is not scalable. We run an iteration of MERT to completion for each co-efficient and it will be ideal to have faster ways of achieving the best parameters. An approach like~\cite{Foster:07} of instance re-weighting for linear interpolation would be a good first attempt. The model has not been used for triangulation before and it will be interesting to see if we can use a similar approach to re-weight the phrase pairs from baseline while also giving importance to the right phrase pairs from triangulated table. There is a ratio mismatch in triangulation for low-resource languages because of the tiny size of the direct phrase tables. Hence, when doing instance re-weighting, more than 95\% of the instances will actually be from the triangulated phrase table. Thus, some changes will be needed to adapt to the skewed setting of the translation models. 
+
+
 
 
 

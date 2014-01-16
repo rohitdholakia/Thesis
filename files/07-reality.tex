@@ -25,9 +25,9 @@ Mawukakan\footnote{http://catalog.ldc.upenn.edu/LDC2005L01} and Maninkakan\footn
 
 \input{files/Tables/Example-each.tex}
 
-All the source sentences in Mawukakan have both French and English translations. Not all sentences in Maninkakan have both translations. The numbers for each of the datasets is mentioned in Table~\ref{table:datasettings}. The training data for Haitian Kreyol is the same as released in the Workshop. Malagasy training data also has not been changed in any manner.Both Haitian Kreyol and Malagasy have no parallel data with other languages except English. To use triangulation, we needed parallel data with atleast one more language to use as pivot. 
+All the source sentences in Mawukakan have both French and English translations. Not all sentences in Maninkakan have both translations. The numbers for each of the datasets is mentioned in Table~\ref{table:datasettings}. While the previous systems had a same amount of data for all the systems, we have a very small source pivot system and we also have them disjoint for 2 of the languages. They are also from different domains. 
 
-To enable us to reach French phrases, we have used the Bible as our source pivot text for Haitian Kreyol and Malagasy. The Bible gives us 30K sentences of text that is relatively clean. To align the Bible in source languages and French, we used hunalign~\cite{Hun:05}, a sentence aligner. No manual alignment was done. As a result of using Bible, our source pivot, pivot target and source target models are all trained on disjoint and unrelated domains for Haitian Kreyol and Malagasy. For Haitian Kreyol, we aim to improve translations for short messages using the Bible to reach french phrases present in parlimentary proceedings. For Malagasy, we aim to improve poorly aligned news articles using the Bible to reach the same french phrases. As shown in our results, we improve the translations for both over the target system. 
+The training data for Haitian Kreyol is the same as released in the Workshop. Malagasy training data also has not been changed in any manner.Both Haitian Kreyol and Malagasy have no parallel data with other languages except English. To use triangulation, we needed parallel data with atleast one more language to use as pivot. To enable us to reach French phrases, we have used the Bible as our source pivot text for Haitian Kreyol and Malagasy. The Bible gives us 30K sentences of text that is relatively clean. To align the Bible in source languages and French, we used hunalign~\cite{Hun:05}, a sentence aligner. No manual alignment was done. As a result of using Bible, our source pivot, pivot target and source target models are all trained on disjoint and unrelated domains for Haitian Kreyol and Malagasy. For Haitian Kreyol, we aim to improve translations for short messages using the Bible to reach french phrases present in parlimentary proceedings. For Malagasy, we aim to improve poorly aligned news articles using the Bible to reach the same french phrases. As shown in our results, we improve the translations for both over the target system. 
 
 \subsection{Pre-processing}
 
@@ -58,38 +58,23 @@ To enable us to reach French phrases, we have used the Bible as our source pivot
 	\label{table:datasettings}
 \end{table*}
 
-\begin{table*}
-	\small
-	\centering
-	\begin{tabular}{lrrr}
-	\toprule
-	Language & \#baseline-rules & \#triangulated-rules \\
-	\toprule
-	Mawukakan & 51066 & 1.3M \\
-	Maninkakan & 60097 & 0.8M \\
-	Haitian Kreyol & 4.8M & 13.6M \\
-	Malagasy & 5.5M & 7.1M \\
-	\bottomrule
-	\end{tabular}
-	\caption{Number of phrase pairs before and after triangulation}
-	\label{table:mul_rules}
-\end{table*}
+
 
 \begin{table*}
 	\small
 	\centering
 	\begin{tabular}{lrr}
 	\toprule
-	System & common pivot & \#rules \\
+	System & \#rules \\
 	\toprule
-	mawu-fr-en & 8128 & 1.3M \\
-	manin-fr-en & 6289 & 0.8M \\
-	ht-fr-en & 116184 & 13.6M \\
-	mlg-fr-en & 99247 & 7.1M \\
+	mawu-fr-en  & 1.3M \\
+	manin-fr-en  & 0.8M \\
+	ht-fr-en  & 13.6M \\
+	mlg-fr-en & 7.1M \\
 	\midrule
-	de-fr-en & 1.3M & 28.7M \\
-	fr-es-en & 1.3M & 13.7M \\
-	es-fr-en & 1.3M & 12.95M \\
+	de-fr-en  & 28.7M \\
+	fr-es-en  & 13.7M \\
+	es-fr-en  & 12.95M \\
 	\bottomrule
 	\end{tabular}
 	\caption{Comparison of triangulation sizes for Europarl(50K src pivot and 2M pivot tgt) and four languages we study}
@@ -127,7 +112,26 @@ The baseline BLEU score for all the four languages are reported on Table~\ref{ta
 
 \section{Results}
 \label{sec:results}
- The triangulated translation model alone does not achieve a comparable performance to the baseline, owing to the out-of-domain nature of the data. In our experiments, we find that Malagasy and Haitian-Creole show a linear decrease in BLEU score on the heldout set as \emph{n} is increased. Only using the triangulated translation model leads to a 14 BLEU point drop in case of Haitian-Creole, while giving a 8 point drop in case of Malagasy. Mawukakan and Maninkakan also get lower BLEU scores by only using the triangulated system. But, the optimum value of n = 100 for Mawukakan and Maninkakan. We compare the BLEU score of n = 100 and n = 1000 and saw no difference. Observing the BLEU score loss by only using the triangulated model reitaretes the importance of the direct system.  %For all the results in table~\ref{table:all_results}, the translations models are interpolated with n = 20 for Haitian-Creole and Malagasy and n = 100 for Mawukakan and Maninkakan. 
+ The triangulated translation model alone does not achieve a comparable performance to the baseline, owing to the out-of-domain nature of the data. In our experiments, we find that Malagasy and Haitian-Creole show a linear decrease in BLEU score on the heldout set as \emph{n} is increased. Only using the triangulated translation model leads to a 14 BLEU point drop in case of Haitian-Creole, while giving a 8 point drop in case of Malagasy. Mawukakan and Maninkakan also get lower BLEU scores by only using the triangulated system. But, the optimum value of n = 100 for Mawukakan and Maninkakan. We compare the BLEU score of n = 100 and n = 1000 and saw no difference. Observing the BLEU score loss by only using the triangulated model reitaretes the importance of the direct system.  In Table~\ref{table:mul_rules}, we observe that triangulation leads to a lot more phrases for the two West African languages when compared to Haitian Kreyol and Malagasy. For Malagasy, we see the least amount of jump in the number of rules. And this remains when ``n'' is increased from 20 to 100. %For all the results in table~\ref{table:all_results}, the translations models are interpolated with n = 20 for Haitian-Creole and Malagasy and n = 100 for Mawukakan and Maninkakan. 
+
+ \begin{table*}
+	\small
+	\centering
+	\begin{tabular}{lrrr}
+	\toprule
+	Language & \#baseline-rules & \#triangulated-rules \\
+	\toprule
+	Mawukakan & 51K & 1.3M \\
+	Maninkakan & 60K & 0.8M \\
+	Haitian Kreyol & 4.8M & 13.6M \\
+	Malagasy & 5.5M & 7.1M \\
+	\bottomrule
+	\end{tabular}
+	\caption{Number of phrase pairs before and after triangulation}
+	\label{table:mul_rules}
+\end{table*}
+
+
 \begin{figure}[t]
                 \small
                 \centering
@@ -178,5 +182,3 @@ Adding the Joint and decomposed conditionals as features does well for Mawukakan
      	\centering
      \end{figure}
 \end{comment}
-\section{Remarks}
-\label{sec:remarks}

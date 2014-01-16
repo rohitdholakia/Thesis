@@ -4,12 +4,12 @@
 
 \section{What is Triangulation?}
 \label{sec:triangulation}
-To explain the algorithm, lets first use an example from the previous chapter. We saw in the previous chapter that the sentence \mawuexample had two OOVs resolved after interpolating with a triangulated table. In other words, the direct system did not have any knowledge about two phrases, \emph{$y\grave{a}ng\acute{a}l\acute{a}\grave{a}$} and \emph{l$\acute{a}$kw$\acute{e}$}. We observe that in the source pivot table, we have 1 rule for the word \emph{$y\grave{a}ng\acute{a}l\acute{a}\grave{a}$}. \\
+To explain the algorithm, lets first use an example from the previous chapter. We saw in the previous chapter that the sentence \mawuexample  \\ had two OOVs resolved after interpolating with a triangulated table. In other words, the direct system did not have any knowledge about two phrases, \emph{$y\grave{a}ng\acute{a}l\acute{a}\grave{a}$} and \emph{l$\acute{a}$kw$\acute{e}$}. Let us trace the steps which led to translations for the two OOVs. We observe that in the source pivot table, we have 1 rule for the word \emph{$y\grave{a}ng\acute{a}l\acute{a}\grave{a}$}. \\
 
 \indent
     \emph{$y\grave{a}ng\acute{a}l\acute{a}\grave{a}$} $|||$ la maladie $|||$ 0.285714 0.0926127 1 0.16 2.718\\
 
-The french phrase ``la maladie'' has 215 translations in the Europarl table. We use all 215 options to compute feature values for new (\emph{$y\grave{a}ng\acute{a}l\acute{a}\grave{a}$}, tgt) translation pairs and select the top-\emph{n} and add it to the table. These steps are explained in a formal manner below. 
+The exact french phrase ``la maladie'' has 215 translations in the Europarl table. We use all 215 options to compute feature values for new (\emph{$y\grave{a}ng\acute{a}l\acute{a}\grave{a}$}, tgt) translation pairs and select the top-\emph{n} and add it to the table. These steps are explained in a formal manner below. 
 
 
 
@@ -57,7 +57,7 @@ Facing a new low resource language pair, several questions arise when trying to 
 All the papers that use triangulation in machine translation cite either \cite{Utiyama:07} or \cite{Cohn:07}, both published in 2007 (and sometimes cite both of them but use either one model or the other). However, these two papers introduce triangulation for phrase-based SMT in very different ways and their models are different from each other. To our knowledge, before this paper there has been no in-depth study of the different choices in building an SMT system using triangulation. Another limitation of the original work in triangulation~\cite{Utiyama:07,Cohn:07} is the unrealistic use of languages with abundant parallel data to simulate low-resource languages. Subsequent work~\cite{Nakov:12,Nakovemnlp:12,Gispert:06,Huck:12} has also assumed that parallel data in pivot languages can be found in the same domain as the original resource-poor language pair. This kind of domain similarity is not easy to find for realistic low-resource settings. In this paper, we consider and answer these design issues for real-world low-resource language pairs, building an effective machine translation for some of these languages for the first time. In constrast, in this dissertation, we improve translation quality by using triangulation through careful consideration of the triangulation design options listed above. Furthermore, in all four languages since the low-resource language pair and pivot language pair data typically come from very different domains, we use insights from domain adaptation to fine-tune the weighted mixture of direct and pivot based phrase pairs to significantly improve translation quality. 
 
 \end{comment}
-Having obtained a new source target pair, how best to compute the feature values ? For source phrase src, target phrase tgt and pivot phrase pvt, we can compute the feature values like in~\cite{Utiyama:07} using the following equations : 
+Having obtained a new source target pair, how best to compute the feature values ? For phrases src, pvt and tgt, we can compute the feature values like in~\cite{Utiyama:07} using the following equations : 
 
  		\begin{equation} \label{eq:first}
                  p_{lex}(tgt \mid src) = \sum_{pvt} p_{lex}(tgt \mid pvt) p_{lex}(pvt \mid src)
@@ -75,7 +75,7 @@ Having obtained a new source target pair, how best to compute the feature values
         	p_w(src \mid tgt) = \sum_{pvt} p_w(src \mid pvt) p_w(pvt \mid tgt)
         \end{equation}
 
-        For all the feature values, we multiply the corresponding values for source pivot and pivot target entries and marginalize over the pivot phrase. Note that we are making an independence assumption shown in equation below. 
+        For all the feature values, we multiply the corresponding values for source pivot and pivot target entries and marginalize over the pivot phrase. Note that we are making an independence assumption shown in equation~\eqref{eq:independence}. 
 
          \begin{eqnarray*} \label{eq:independence}
                 p(tgt \mid src)&=&\sum_{pvt}{p(tgt, pvt \mid src)}\\
@@ -112,10 +112,7 @@ the good work \\
 \label{example:maninkakan}
 \end{table*}
 
-In Table~\ref{example:maninkakan}, we see that the source phrase \maninexample has only 1 translation before using triangulation. Note that the training corpus has the word accomplished only once. After using the target phrases in Europarl, we get 8 translations for the same phrase. We also see that ``work'' has changed to ``job'' and the possible target phrases are shorter. 
-
-
- 
+In Table~\ref{example:maninkakan}, we see that the source phrase \maninexample \\ has only 1 translation before using triangulation. Note that the training corpus has the word accomplished only once. After using the target phrases in Europarl, we get 8 translations for the same phrase. We also see that ``work'' has changed to ``job'' and the possible target phrases are shorter. This is a good example of how we added more target translations by using a much richer and cleaner target corpus. The English side of Europarl is much larger than 4K target sentences in English and even with fewer common phrases, we manage to improve translations for existing phrase pairs. 
 
 
 
@@ -135,8 +132,8 @@ In Table~\ref{example:maninkakan}, we see that the source phrase \maninexample h
                 \toprule
                 language &  Rules \\
                 \toprule
-                maninkakan & 106.7M \\
-                mawukakan & 151.6M \\
+                Mawukakan & 151.6M \\
+                Maninkakan & 106.7M \\
                 \bottomrule
                 \end{tabular}
                 \caption{Number of rules if all possible paths are considered}
@@ -146,7 +143,7 @@ In Table~\ref{example:maninkakan}, we see that the source phrase \maninexample h
 
 \subsection{Connectivity features}
 \label{subsec:connectivity}
-        The phrase pairs in the triangulated phrase table are contingent upon the common pivot phrases. As a result, we can have phrase pairs that map ``!'' to a target phrase ``and making the soup thick !'' in Haitian Kreyol to English triangulated phrase table. Computing feature values using equations from section~\ref{subsec:topn}, it is reasonable to assume that spurious phrase pairs like above can get a high enough feature value to end up as a translation during decoding. To reward phrase pairs that have more alignment links between and to penalize pairs that don't, we add two connectivity features to the phrase table, as used in ~\cite{Ahmed:13}.
+        The phrase pairs in the triangulated phrase table are contingent upon the common pivot phrases. As a result, we can have phrase pairs that map \textbf{``!''} to a target phrase \textbf{``and making the soup thick !''} in Haitian Kreyol to English triangulated phrase table. Computing feature values using equations from section~\ref{subsec:topn}, it is reasonable to assume that spurious phrase pairs like above can get a high enough feature value to end up as a translation during decoding. To reward phrase pairs that have more alignment links between and to penalize pairs that don't, we add two connectivity features to the phrase table, as used in ~\cite{Ahmed:13}.
 
         For a source phrase \emph{p$_s$}, target phrase \emph{p$_t$}, and with the number of alignment links between them \emph{N}, the strength will be calculated as follows :
 
@@ -158,8 +155,10 @@ In Table~\ref{example:maninkakan}, we see that the source phrase \maninexample h
                 target_{strength} = \frac{\mathrm{N}}{\mathrm{T}}
         \end{equation*}
 
-        where S is the length of the source phrase \emph{p$_s$} and T is the length of the target phrase \emph{p$_t$}. To compute the connectivity strength feature, the alignments in the source pivot phrase pair are intersected with the pivot target phrase pair. If the resulting alignment has a higher strength, it implies that a majority of the source words do have an alignment with the target.
+        where S is the length of the source phrase \emph{p$_s$} and T is the length of the target phrase \emph{p$_t$}. To compute the connectivity strength feature, the alignments in the source pivot phrase pair are intersected with the pivot target phrase pair. If the resulting alignment has a higher strength, it implies that a majority of the source words do have an alignment with the target. 
 
+        One of the potential limiting factors of this model is the fact that we extract alignments using the \emph{--grow-diag-final-and} heuristic. By taking the intersection of bi-directional alignments and only adding unaligned words from the union, we end up with alignments that are conservative. This skews the distribution of the strength features in cases where the source pivot corpus is tiny in size. 
+ 
 
 \subsection{IBM Model1 Alignment}
 \label{subsec:model1}
