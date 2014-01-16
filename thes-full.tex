@@ -30,7 +30,6 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{relsize}
-
 \usepackage{comment}
 \usepackage{epstopdf}
 \usepackage[small,compact]{titlesec}
@@ -40,6 +39,9 @@
 \usepackage{tipa}
 \usepackage{multirow}
 \usepackage{enumitem}
+
+\epstopdfDeclareGraphicsRule{.tiff}{png}{.png}{convert #1 \OutputFile}
+\AppendGraphicsExtensions{.tiff}
 \setdescription{noitemsep,topsep=0pt}
 \captionsetup[algorithm]{labelfont=rm,labelsep=colon,font=footnotesize}\newcommand{\pemp}{\tilde{p}}
 %\newcommand{\sto}{\!\shortrightarrow\!}
@@ -78,6 +80,7 @@
 \usepackage{enumitem}
 \usepackage{listings}
 \newcommand{\alert}[1]{{\textcolor{blue}{ALRT: #1}}}
+\newcommand{\anoop}[1]{{\textcolor{red}{ANOOP: #1}}}
 \makeindex  
 
 %%% The following code demonstrates the ``other list'' facility. A new
@@ -254,7 +257,7 @@
 % \end{appendices}
 
 %%%%%%  bibliography
-\input{files/bibl}
+\input{files/newbibl}
 
 %%%%%%  index
 % \input{files/ind}

@@ -14,7 +14,7 @@
 	In all the experiments, we used phrase-based SMT systems. In hierarchical phrase-based systems~\cite{Chiang:07}, we can translate phrases with gaps. Essentially, this generates a lot more phrase rules while also being able to translate phrases with longer reorderings. Hiero systems have not been used before for low-resource triangulation and it will be interesting to see if more possible rules with gaps lead to better translations. 
 
 \subsection{Considering Sub-phrases}
-	A restriction of pivot-based triangulation is the contingence upon exact matches of pivot phrases. A french translation ``le pivot el muli'' has to be the exact same phrase on the french-english table to be used for the triangulated table. An alternative would be to consider sub-phrases. 
+	A restriction of pivot-based triangulation is the contingence upon exact matches of pivot phrases. A French translation ``le pivot el muli'' has to be the exact same phrase on the French-English table to be used for the triangulated table. An alternative would be to consider sub-phrases. 
 
 	Consider a source pivot pair, 
 
@@ -36,7 +36,7 @@
 	If we assume either of them as pivots, what about the non-terminals on the source and target side ? We will also need a new feature function which models the sub-phrases themselves and their connectivity, something like the connectivity features used above but with non-terminals. 
 
 \subsection{Faster Parameter Learning}
-	In all the interpolation experiments, we are learning one parameter. When using more translation models, the approach of using CONDOR is not scalable. We run an iteration of MERT to completion for each co-efficient and it will be ideal to have faster ways of achieving the best parameters. An approach like~\cite{Foster:07} of instance re-weighting for linear interpolation would be a good first attempt. The model has not been used for triangulation before and it will be interesting to see if we can use a similar approach to re-weight the phrase pairs from baseline while also giving importance to the right phrase pairs from triangulated table. There is a ratio mismatch in triangulation for low-resource languages because of the tiny size of the direct phrase tables. Hence, when doing instance re-weighting, more than 95\% of the instances will actually be from the triangulated phrase table. Thus, some changes will be needed to adapt to the skewed setting of the translation models. 
+	In all the interpolation experiments, we are learning one parameter (best weight for the direct system). When using more translation models, the approach of using CONDOR is not scalable. We run an iteration of MERT to completion for each co-efficient and it will be ideal to have faster ways of achieving the best parameters. An approach like~\cite{Foster:07} of instance re-weighting for linear interpolation would be a good first attempt. The model has not been used for triangulation before and it will be interesting to see if we can use a similar approach to re-weight the phrase pairs from baseline while also giving importance to the right phrase pairs from triangulated table. There is a ratio mismatch in triangulation for low-resource languages because of the tiny size of the direct phrase tables. Hence, when doing instance re-weighting, more than 95\% of the instances will actually be from the triangulated phrase table. Thus, some changes will be needed to adapt to the skewed setting of the translation models. 
 
 
 
