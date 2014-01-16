@@ -16,10 +16,9 @@
 \section{Why study Low-Resource languages?}
 \label{sec:low_resource}
 
-Statistical Machine Translation(SMT) has enabled several languages like French, Spanish, Finnish and others to have publicly available translation systems which can translate from and into these languages. Google Translate has 81 languages you can translate from and to. In 2003, we had none ! 
+Statistical Machine Translation (SMT) has enabled translation between several languages such as, for instance, French, Spanish, Finnish and many others. Translation systems are now available on the web, Google Translate now supports translation between 81 languages. The success of Google Translate in covering many different languages and producing translations of high quality for at least some language pairs is largely due to the fact that statistical machine translation uses machine learning methods over large amounts of previously translated material (which can be obtained online) in order to build fluent, accurate and fast translation systems.
 
-
-Having said that, more than 90\% of the World languages do not have a publicly available SMT system. Moreover, most of them have not been studied in the SMT literature before. In Table~\ref{table:numberspeakers}, we observe that the major languages have way more number of speakers than the languages we study in this disseration. 
+However, more than 90\% of the world languages do not have a publicly available SMT system. Most of the world's languages (over 7000 languages are currently spoken around the world) have not been studied in the context of SMT research. In Table~\ref{table:numberspeakers}, we show that the major languages typically the topic of SMT research and development have many more speakers than the languages we study in this disseration. 
 \begin{table*}
 	\begin{tabular}{lr}
 	\toprule
@@ -41,11 +40,11 @@ Having said that, more than 90\% of the World languages do not have a publicly a
 	%\centering
 \end{table*}
 
-Studying languages with insufficient resources throws up interesting and unique linguistic challenges.  Providing a solution for the challenges takes us a little closer towards the quest for a universal translator. For instance, Malagasy has influence from French and Arabic. While there are some loan words from French, the numbers are written right-to-left like Arabic, while also having some vocabulary overlap with Bantu. Diacritics are used but only in certain circumstances. On the other hand, Mawukakan and Maninkakan show a more frequent usage of diacritics. But the accent can be different depending on the placement of the word. Haitian Kreyol is a French-based Creole but does not share any vocabulary with Parisian French. The influence is from 18th century French when Haiti was ruled by France. Haitian Kreyol became an official language only in 1961. Like is typical of Creoles, the morphology is not very rich but because the language is still undergoing changes, its not yet standardized. In the training corpus, there are a few English words that can be spelt 5 or 6 different ways.
+Studying languages with insufficient resources leads to interesting and unique linguistic challenges.  Providing a solution for these challenges take us a little closer towards the goal of an universal translator. While there are many languages spoken around the world, each language does not sit in isolation. Languages are often connected with other languages, either in a synchronic or diachronic way. For instance, Malagasy has influence from French and Arabic. While there are some loan words from French, the numbers are written right-to-left like Arabic, while also having some vocabulary overlap with Bantu. Diacritics are used but only in certain circumstances. Haitian Kreyol is a French-based Creole but does not share any vocabulary with Parisian French. The influence is from 18th century French when Haiti was ruled by France. Haitian Kreyol became an official language of Haiti only in 1961. Kreyol does not have a very complex morphology, a fact that is typical of creoles. Furthermore, in informal contexts such as short text messages, the spelling is often not used in any standard way. In our training data, there are a few English words that can be spelt in Kreyol six different ways.
 
 \section{Phrase-based SMT Pipeline}
 \label{sec:generic_pipelin}
-To the interested reader, we refer to the comprehensive and readable SMT survey~\cite{Lopez07asurvey}. Below, we discuss the pipeline for phrase-based SMT~\cite{Koehn:03} which has been used for all the experiments in the dissertation, and discuss how a low-resource language pair raises question at each stage. 
+We use a fairly standard SMT toolkit in this thesis. To the interested reader, we refer to the comprehensive and readable SMT survey by Adam Lopez~\cite{Lopez07asurvey}. In this section, we discuss the typicaly framework for phrase-based SMT~\cite{Koehn:03} which has been used for all the experiments in the dissertation, and discuss how a low-resource language pair can create a stumbling block in each stage. 
 
 SMT uses data-driven models to translate sentences in a source language to a given target language. Given a parallel corpus between \emph{s} and \emph{t}, a phrase-based SMT system has a generic pipeline that looks as described in Algorithm~\ref{algo:pbsmt}. 
 
@@ -54,23 +53,23 @@ SMT uses data-driven models to translate sentences in a source language to a giv
 %\centering
 \caption{Building a phrase-based system}
 \label{algo:pbsmt}
-\textbf{Input}: Parallel corpus between \emph{s} and \emph{t} \\
+\textbf{Input}: Parallel corpus between \emph{s} and \emph{t}: sentence-by-sentence translations of language \emph{s} into language \emph{t}  \\
 \textbf{Output}: A translation model ``tm'' 
 \begin{algorithmic}[l]
 	%\STATE{\textbf{Clean:}Pre-process both sides of the corpus} \label{aline:preprocess}
-	\STATE{\textbf{Alignments: }Learn bi-directional alignments} \label{aline:alignments}
-	\STATE{\textbf{Extraction: }Extract phrase pairs from alignments and compute likelihoods for each translation pair} \label{aline:scores}
-	\STATE{\textbf{Tuning: }Set weights for features by maximizing BLEU score on a development set using MERT} \label{aline:MERT}
-	\STATE{\textbf{Decoding: }Using language model and translation model, translate test sentences} \label{aline:decoding}
+	\STATE{\textbf{Alignments: }Learn bi-directional alignments from the parallel corpus} \label{aline:alignments}
+	\STATE{\textbf{Extraction: }Extract phrase pairs from the alignments and compute probability-based feature values for each translation pair. This is called the translation model.} \label{aline:scores}
+	\STATE{\textbf{Tuning: }Learn the weights for the features by maximizing BLEU score on a development set using discriminative Minimum Error Rate Training (MERT)} \label{aline:MERT}
+	\STATE{\textbf{Decoding: }Using a language model and translation model, translate test sentences} \label{aline:decoding}
 \end{algorithmic}
 \end{algorithm}
 
-The reason its called phrase-based SMT is because the base unit of translation are \emph{phrases}. The phrases need not be linguistically motivated. Phrases in this context means a continuous group of words. In this dissertation, we only use phrase-based SMT for all the experiments but there are others in the literature.~\cite{Chiang:07,Michel:04}
+The reason this is called phrase-based SMT is because the base unit of translation are \emph{phrases}. The phrases need not be linguistically motivated. Phrases in this context means a continuous group of words. In this dissertation, we only use phrase-based SMT for all the experiments but there are types of SMT models proposed in the literature.~\cite{Chiang:07,Michel:04}
 
 Each step of Algorithm~\ref{algo:pbsmt} outlined above raises questions when faced with a low-resource language pair. Low-resource languages are those with insufficient resources to use for Machine Translation into and/or from the language. To provide perspective, French has a corpus with $10^9$ parallel sentences with English. On the other hand, the language with the highest amount of data in this dissertation is Haitian Kreyol, with 121K sentences. Out of those 121K, only 16\% are from the target domain, the sentences are noisy and with punctuation and spelling mistakes.
 
 
-Lets consider each step and discuss the problems that come up. Given parallel data, the goal of the alignment models~\cite{Brown:1993,Vogel:1996} is to learn which word in source language \emph{s} translates to target language \emph{t} and assign a likelihood to the pair of words. The advanced alignment models use initial alignments from IBM Model 1. Model 1 starts with uniform initialization and uses Expectation Maximization~\cite{Dempster:77} to converge. Facing a corpus of a small size, the alignment models will end up making inferences that are not always true. They will place higher likelihood on pairs seen fewer number of times due to lack of more data. At the end of the alignment process, we will have two alignment files. The forward alignment file will say which words in the target language align to which words in the source language. The backward alignment file will say vice-versa. An entry from the backward and forward alignment files would look like shown in Table~\ref{table:example_fwd_backward}. The \emph{forward} line says that the target word ``a'' is aligned to nothing on the source side, while bit is aligned to enpe and everywhere is aligned to both tout and kote. The \emph{backward} line says the same thing but the target side is Haitian Kreyol. 
+Let us consider each step and discuss the problems that come up. Given parallel data, the goal of the alignment models~\cite{Brown:1993,Vogel:1996} is to learn which word in source language \emph{s} translates to target language \emph{t} and assign a likelihood to the pair of words. The advanced alignment models use initial alignments from IBM Model 1. Model 1 starts with uniform initialization and uses Expectation Maximization~\cite{Dempster:77} to converge. Facing a corpus of a small size, the alignment models will end up making inferences that are not always true. They will place higher likelihood on pairs seen fewer number of times due to lack of more data. At the end of the alignment process, we will have two alignment files. The forward alignment file will say which words in the target language align to which words in the source language. The backward alignment file will say vice-versa. An entry from the backward and forward alignment files would look like shown in Table~\ref{table:example_fwd_backward}. The \emph{forward} line says that the target word ``a'' is aligned to nothing on the source side, while bit is aligned to enpe and everywhere is aligned to both tout and kote. The \emph{backward} line says the same thing but the target side is Haitian Kreyol. 
 
 \begin{table*}
 \small
