@@ -1,6 +1,3 @@
-# Makefile for SFU Thesis Template
-# Snehasish Kumar - ska124@sfu.ca
-# 01-Jul-2012
 
 full:
 	pdflatex thes-full.tex
